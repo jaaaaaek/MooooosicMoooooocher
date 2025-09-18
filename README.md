@@ -30,5 +30,7 @@ And then if you want, put those links in the ExistingDownloads folder as well to
 <h1>Now that that's done and you have formatted links</h1>
 Navigate to the "Music" folder within this project on the command line, and then paste those links. The yt-dlp.exe is already in there so it should look something like this 
 
-<img width="846" height="421" alt="image" src="https://github.com/user-attachments/assets/a2055ff1-68fb-4bd2-aa89-1019649ea882" />Congrats! You should now see the downloaded song in the "Music" directory. 
+<img width="846" height="421" alt="image" src="https://github.com/user-attachments/assets/a2055ff1-68fb-4bd2-aa89-1019649ea882" />
+
+Congrats! You should now see the downloaded song in the "Music" directory. 
 <h1>Good luck!</h1>
