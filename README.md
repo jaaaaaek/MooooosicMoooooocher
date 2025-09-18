@@ -32,4 +32,4 @@ Navigate to the "Music" folder within this project on the command line, and then
 
 <img width="846" height="421" alt="image" src="https://github.com/user-attachments/assets/a2055ff1-68fb-4bd2-aa89-1019649ea882" />
 Congrats! You should now see the downloaded song in the "Music" directory. 
-<h1>Good luck!</h1><
+<h1>Good luck!</h1>
