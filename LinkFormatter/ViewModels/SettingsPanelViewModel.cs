@@ -10,6 +10,7 @@ namespace LinkFormatter.ViewModels
         private AudioFormat _preferredFormat = AudioFormat.MP3;
 
         public event Action? SettingsChanged;
+        public IReadOnlyList<AudioFormat> Formats { get; } = Enum.GetValues<AudioFormat>();
 
         public string OutputFolder
         {

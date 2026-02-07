@@ -9,10 +9,26 @@
                Foreground="{StaticResource TextBrush}" />
 
     <StackPanel Spacing="6">
-      <TextBlock Text="Output Folder" Foreground="{StaticResource TextBrush}" />
-      <TextBox Text="{Binding OutputFolder}"
-               Watermark="C:\Music"
-               Background="{StaticResource SurfaceBrush}" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Output Folder" Foreground="{StaticResource TextBrush}" />
+        <Button Grid.Column="1"
+                Click="OnBrowseClick"
+                Background="{StaticResource BackgroundBrush}"
+                ToolTip.Tip="Choose folder">
+          <TextBlock FontFamily="Segoe MDL2 Assets"
+                     Text=""
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Center" />
+        </Button>
+      </Grid>
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBox Grid.Column="0"
+                 Text="{Binding OutputFolder}"
+                 Watermark="C:\Music"
+                 Background="{StaticResource SurfaceBrush}"
+                 IsReadOnly="True" />
+        <Border Grid.Column="1" Width="8" />
+      </Grid>
     </StackPanel>
 
     <StackPanel Spacing="6">
@@ -24,12 +40,16 @@
 
     <StackPanel Spacing="6">
       <TextBlock Text="Default Format" Foreground="{StaticResource TextBrush}" />
-      <ComboBox SelectedValue="{Binding PreferredFormat}"
-                SelectedValuePath="Tag"
-                Background="{StaticResource SurfaceBrush}">
-        <ComboBoxItem Content="MP3" Tag="{x:Static models:AudioFormat.MP3}" />
-        <ComboBoxItem Content="WAV" Tag="{x:Static models:AudioFormat.WAV}" />
-      </ComboBox>
+      <ComboBox ItemsSource="{Binding Formats}"
+                SelectedItem="{Binding PreferredFormat}"
+                Background="{StaticResource SurfaceBrush}" />
+    </StackPanel>
+
+    <StackPanel Spacing="6">
+      <TextBlock Text="View Zoom" Foreground="{StaticResource TextBrush}" />
+      <ComboBox ItemsSource="{Binding DataContext.ZoomPresets, RelativeSource={RelativeSource AncestorType=Window}}"
+                SelectedItem="{Binding DataContext.SelectedZoomPreset, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+                Background="{StaticResource SurfaceBrush}" />
     </StackPanel>
   </StackPanel>
 </UserControl>

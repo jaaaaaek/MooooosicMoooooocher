@@ -5,23 +5,36 @@
         Width="1200"
         Height="800"
         Background="{StaticResource BackgroundBrush}"
+        FontSize="{Binding ZoomedFontSize}"
         Title="SoundCloud Downloader">
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+OemPlus" Command="{Binding ZoomInCommand}" />
+    <KeyBinding Gesture="Ctrl+Add" Command="{Binding ZoomInCommand}" />
+    <KeyBinding Gesture="Ctrl+OemMinus" Command="{Binding ZoomOutCommand}" />
+    <KeyBinding Gesture="Ctrl+Subtract" Command="{Binding ZoomOutCommand}" />
+    <KeyBinding Gesture="Ctrl+0" Command="{Binding ResetZoomCommand}" />
+  </Window.KeyBindings>
+
   <Grid>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="260" />
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
+        <ColumnDefinition Width="260" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
 
-    <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" Padding="16">
-      <views:SettingsPanelView DataContext="{Binding SettingsPanel}" />
-    </Border>
+      <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" Padding="16">
+        <Border Background="{StaticResource SurfaceBrush}"
+                CornerRadius="8"
+                Padding="12">
+          <views:SettingsPanelView DataContext="{Binding SettingsPanel}" />
+        </Border>
+      </Border>
 
-    <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,*,Auto,Auto" RowSpacing="12">
-      <views:UrlInputView Grid.Row="0" DataContext="{Binding UrlInput}" />
-      <views:DownloadQueueView Grid.Row="1" DataContext="{Binding DownloadQueue}" />
-      <views:ProgressConsoleView Grid.Row="2" DataContext="{Binding ProgressConsole}" />
-      <views:FilesListView Grid.Row="3" DataContext="{Binding FilesList}" />
-    </Grid>
+      <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,*,Auto,Auto">
+        <views:UrlInputView Grid.Row="0" Margin="0,0,0,12" DataContext="{Binding UrlInput}" />
+        <views:DownloadQueueView Grid.Row="1" Margin="0,0,0,12" DataContext="{Binding DownloadQueue}" />
+        <views:ProgressConsoleView Grid.Row="2" Margin="0,0,0,12" DataContext="{Binding ProgressConsole}" />
+        <views:FilesListView Grid.Row="3" DataContext="{Binding FilesList}" />
+      </Grid>
 
     <Border Background="#AA000000"
             IsVisible="{Binding IsWelcomeVisible}">

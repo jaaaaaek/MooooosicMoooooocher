@@ -1,7 +1,6 @@
 <UserControl x:Class="LinkFormatter.Views.UrlInputView"
              xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:models="clr-namespace:LinkFormatter.Models">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
     <StackPanel Spacing="8">
       <TextBlock Text="Add a SoundCloud URL"
@@ -15,12 +14,9 @@
 
       <StackPanel Orientation="Horizontal" Spacing="10">
         <ComboBox Width="140"
-                  SelectedValue="{Binding SelectedFormat}"
-                  SelectedValuePath="Tag"
-                  Background="{StaticResource BackgroundBrush}">
-          <ComboBoxItem Content="MP3" Tag="{x:Static models:AudioFormat.MP3}" />
-          <ComboBoxItem Content="WAV" Tag="{x:Static models:AudioFormat.WAV}" />
-        </ComboBox>
+                  ItemsSource="{Binding Formats}"
+                  SelectedItem="{Binding SelectedFormat}"
+                  Background="{StaticResource BackgroundBrush}" />
         <Button Content="Add"
                 Command="{Binding AddUrlCommand}"
                 Background="{StaticResource ClaudeOrangeBrush}"

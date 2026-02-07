@@ -7,6 +7,7 @@ namespace LinkFormatter.ViewModels
     {
         private readonly IFileService _fileService;
         private string _outputFolder = string.Empty;
+        private Func<IReadOnlyCollection<string>>? _downloadedFilesProvider;
 
         public FilesListViewModel(IFileService fileService)
         {
@@ -32,12 +33,30 @@ namespace LinkFormatter.ViewModels
         public RelayCommand RefreshCommand { get; }
         public RelayCommand<string> OpenFileCommand { get; }
 
+        public void SetDownloadedFilesProvider(Func<IReadOnlyCollection<string>> provider)
+        {
+            _downloadedFilesProvider = provider;
+        }
+
         public void Refresh()
         {
             Files.Clear();
-            foreach (var file in _fileService.GetDownloadedFiles(OutputFolder))
+            var downloadedFiles = _downloadedFilesProvider?.Invoke() ?? Array.Empty<string>();
+            foreach (var file in downloadedFiles)
             {
-                Files.Add(file);
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    continue;
+                }
+
+                string resolved = Path.IsPathRooted(file)
+                    ? file
+                    : Path.Combine(OutputFolder, file);
+
+                if (File.Exists(resolved))
+                {
+                    Files.Add(resolved);
+                }
             }
         }
 
