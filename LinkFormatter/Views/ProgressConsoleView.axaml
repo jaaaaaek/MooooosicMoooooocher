@@ -8,7 +8,7 @@
                  FontWeight="SemiBold"
                  Foreground="{StaticResource TextBrush}" />
       <ScrollViewer Height="140" Background="{StaticResource BackgroundBrush}">
-        <ItemsControl Items="{Binding Lines}">
+        <ItemsControl ItemsSource="{Binding Lines}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <TextBlock Text="{Binding}"

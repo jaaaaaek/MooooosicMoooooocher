@@ -3,18 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
     <StackPanel Spacing="8">
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+      <Grid ColumnDefinitions="*,Auto">
         <TextBlock Text="Downloaded Files"
                    FontSize="16"
                    FontWeight="SemiBold"
                    Foreground="{StaticResource TextBrush}" />
-        <Button Content="Refresh"
+        <Button Grid.Column="1"
+                Content="Refresh"
                 Command="{Binding RefreshCommand}"
-                HorizontalAlignment="Right"
                 Background="{StaticResource BackgroundBrush}" />
-      </StackPanel>
+      </Grid>
 
-      <ListBox Items="{Binding Files}" Background="{StaticResource BackgroundBrush}">
+      <ListBox ItemsSource="{Binding Files}" Background="{StaticResource BackgroundBrush}">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal" Spacing="8">

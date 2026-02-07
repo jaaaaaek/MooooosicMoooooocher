@@ -3,19 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
     <StackPanel Spacing="8">
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+      <Grid ColumnDefinitions="*,Auto">
         <TextBlock Text="Download Queue"
                    FontSize="16"
                    FontWeight="SemiBold"
                    Foreground="{StaticResource TextBrush}" />
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
-          <Button Content="Clear Done"
-                  Command="{Binding ClearCompletedCommand}"
-                  Background="{StaticResource BackgroundBrush}" />
-        </StackPanel>
-      </StackPanel>
+        <Button Grid.Column="1"
+                Content="Clear Done"
+                Command="{Binding ClearCompletedCommand}"
+                Background="{StaticResource BackgroundBrush}" />
+      </Grid>
 
-      <ListBox Items="{Binding Items}" Background="{StaticResource BackgroundBrush}">
+      <ListBox ItemsSource="{Binding Items}" Background="{StaticResource BackgroundBrush}">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <Border Padding="8" BorderThickness="0,0,0,1" BorderBrush="#333333">

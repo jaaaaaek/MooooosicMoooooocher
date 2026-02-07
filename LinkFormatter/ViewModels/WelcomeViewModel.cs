@@ -13,11 +13,17 @@ namespace LinkFormatter.ViewModels
         private bool _isBusy;
         private bool _hasError;
         private string _errorMessage = string.Empty;
+        private bool _isFfmpegRequired;
 
         public WelcomeViewModel(IFFmpegService ffmpegService)
         {
             _ffmpegService = ffmpegService ?? throw new ArgumentNullException(nameof(ffmpegService));
+            ContinueCommand = new RelayCommand(OnContinue, () => CanContinue);
         }
+
+        public event Action? ContinueRequested;
+
+        public RelayCommand ContinueCommand { get; }
 
         public string SoundCloudToken
         {
@@ -29,6 +35,12 @@ namespace LinkFormatter.ViewModels
         {
             get => _mp3Only;
             set => SetProperty(ref _mp3Only, value);
+        }
+
+        public bool IsFfmpegRequired
+        {
+            get => _isFfmpegRequired;
+            private set => SetProperty(ref _isFfmpegRequired, value);
         }
 
         public string StatusMessage
@@ -46,13 +58,25 @@ namespace LinkFormatter.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            private set => SetProperty(ref _isBusy, value);
+            private set
+            {
+                if (SetProperty(ref _isBusy, value))
+                {
+                    UpdateContinueState();
+                }
+            }
         }
 
         public bool HasError
         {
             get => _hasError;
-            private set => SetProperty(ref _hasError, value);
+            private set
+            {
+                if (SetProperty(ref _hasError, value))
+                {
+                    UpdateContinueState();
+                }
+            }
         }
 
         public string ErrorMessage
@@ -61,10 +85,18 @@ namespace LinkFormatter.ViewModels
             private set => SetProperty(ref _errorMessage, value);
         }
 
+        public bool CanContinue => !IsBusy && !HasError;
+
         public void ApplySettings(AppSettings settings)
         {
             SoundCloudToken = settings.SoundCloudToken;
             Mp3Only = settings.PreferredFormat == AudioFormat.MP3;
+        }
+
+        public void UpdateSettings(AppSettings settings)
+        {
+            settings.SoundCloudToken = SoundCloudToken;
+            settings.PreferredFormat = Mp3Only ? AudioFormat.MP3 : AudioFormat.WAV;
         }
 
         public async Task<bool> EnsureDependenciesAsync(string musicFolder, CancellationToken cancellationToken = default)
@@ -73,6 +105,14 @@ namespace LinkFormatter.ViewModels
             HasError = false;
             ErrorMessage = string.Empty;
             ProgressPercent = 0;
+            StatusMessage = string.Empty;
+
+            IsFfmpegRequired = !_ffmpegService.IsFFmpegAvailable(musicFolder);
+            if (!IsFfmpegRequired)
+            {
+                IsBusy = false;
+                return true;
+            }
 
             var progress = new Progress<DownloadProgress>(update =>
             {
@@ -90,6 +130,17 @@ namespace LinkFormatter.ViewModels
 
             IsBusy = false;
             return success;
+        }
+
+        private void OnContinue()
+        {
+            ContinueRequested?.Invoke();
+        }
+
+        private void UpdateContinueState()
+        {
+            OnPropertyChanged(nameof(CanContinue));
+            ContinueCommand.RaiseCanExecuteChanged();
         }
     }
 }

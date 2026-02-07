@@ -21,6 +21,7 @@ namespace LinkFormatter.ViewModels
         public event Action<DownloadItem>? UrlSubmitted;
 
         public RelayCommand AddUrlCommand { get; }
+        public IReadOnlyList<AudioFormat> Formats { get; } = Enum.GetValues<AudioFormat>();
 
         public string UrlText
         {

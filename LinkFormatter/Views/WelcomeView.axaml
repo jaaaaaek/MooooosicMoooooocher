@@ -8,7 +8,7 @@
                  FontWeight="Bold"
                  Foreground="{StaticResource TextBrush}" />
 
-      <TextBlock Text="We will download FFmpeg if needed and save your preferences."
+      <TextBlock Text="Set your preferences to get started."
                  Foreground="{StaticResource TextBrush}"
                  TextWrapping="Wrap" />
 
@@ -23,12 +23,23 @@
                 IsChecked="{Binding Mp3Only}"
                 Foreground="{StaticResource TextBrush}" />
 
-      <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercent}" Height="8" />
-      <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextBrush}" />
+      <StackPanel Spacing="6" IsVisible="{Binding IsFfmpegRequired}">
+        <TextBlock Text="FFmpeg is required for audio extraction. Downloading if missing."
+                   Foreground="{StaticResource TextBrush}"
+                   TextWrapping="Wrap" />
+        <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercent}" Height="8" />
+        <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextBrush}" />
+        <TextBlock Text="{Binding ErrorMessage}"
+                   Foreground="{StaticResource ErrorBrush}"
+                   IsVisible="{Binding HasError}" />
+      </StackPanel>
 
-      <TextBlock Text="{Binding ErrorMessage}"
-                 Foreground="{StaticResource ErrorBrush}"
-                 IsVisible="{Binding HasError}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="Continue"
+                Command="{Binding ContinueCommand}"
+                Background="{StaticResource ClaudeOrangeBrush}"
+                Foreground="White" />
+      </StackPanel>
     </StackPanel>
   </Border>
 </UserControl>

@@ -77,6 +77,11 @@ namespace LinkFormatter.Services
                 settings.DownloadedUrls = new List<string>();
             }
 
+            if (settings.DownloadedFiles == null)
+            {
+                settings.DownloadedFiles = new List<string>();
+            }
+
             if (string.IsNullOrWhiteSpace(settings.OutputFolder))
             {
                 settings.OutputFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);

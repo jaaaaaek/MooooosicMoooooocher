@@ -8,6 +8,7 @@ namespace LinkFormatter.Models
         public double WindowWidth { get; set; } = 1200;
         public double WindowHeight { get; set; } = 800;
         public List<string> DownloadedUrls { get; set; } = new List<string>();
+        public List<string> DownloadedFiles { get; set; } = new List<string>();
         public bool IsFirstRun { get; set; } = true;
     }
 }
