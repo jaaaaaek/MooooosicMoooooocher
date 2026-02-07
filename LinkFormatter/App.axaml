@@ -4,6 +4,7 @@
              RequestedThemeVariant="Dark">
   <Application.Styles>
     <FluentTheme />
+    <StyleInclude Source="avares://LinkFormatter/Styles/ScrollBars.axaml" />
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>

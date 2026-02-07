@@ -13,10 +13,10 @@ namespace LinkFormatter.ViewModels
         {
             _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
             RefreshCommand = new RelayCommand(Refresh);
-            OpenFileCommand = new RelayCommand<string>(OpenFile);
+            OpenFileCommand = new RelayCommand<FileEntry>(OpenFile);
         }
 
-        public ObservableCollection<string> Files { get; } = new();
+        public ObservableCollection<FileEntry> Files { get; } = new();
 
         public string OutputFolder
         {
@@ -31,7 +31,7 @@ namespace LinkFormatter.ViewModels
         }
 
         public RelayCommand RefreshCommand { get; }
-        public RelayCommand<string> OpenFileCommand { get; }
+        public RelayCommand<FileEntry> OpenFileCommand { get; }
 
         public void SetDownloadedFilesProvider(Func<IReadOnlyCollection<string>> provider)
         {
@@ -55,19 +55,31 @@ namespace LinkFormatter.ViewModels
 
                 if (File.Exists(resolved))
                 {
-                    Files.Add(resolved);
+                    Files.Add(new FileEntry(resolved));
                 }
             }
         }
 
-        private void OpenFile(string? filePath)
+        private void OpenFile(FileEntry? fileEntry)
         {
-            if (string.IsNullOrWhiteSpace(filePath))
+            if (fileEntry == null)
             {
                 return;
             }
 
-            _fileService.OpenFileLocation(filePath);
+            _fileService.OpenFileLocation(fileEntry.FullPath);
+        }
+
+        public sealed class FileEntry
+        {
+            public FileEntry(string fullPath)
+            {
+                FullPath = fullPath;
+                DisplayName = Path.GetFileName(fullPath);
+            }
+
+            public string FullPath { get; }
+            public string DisplayName { get; }
         }
     }
 }

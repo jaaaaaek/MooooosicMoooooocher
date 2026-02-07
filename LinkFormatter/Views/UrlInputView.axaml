@@ -3,14 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
     <StackPanel Spacing="8">
-      <TextBlock Text="Add a SoundCloud URL"
+      <TextBlock Text="Add SoundCloud URLs"
                  FontSize="16"
                  FontWeight="SemiBold"
                  Foreground="{StaticResource TextBrush}" />
 
-      <TextBox Text="{Binding UrlText}"
-               Watermark="https://soundcloud.com/artist/track"
-               Background="{StaticResource BackgroundBrush}" />
+      <ScrollViewer Height="96"
+                    Background="{StaticResource BackgroundBrush}"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+        <TextBox Text="{Binding UrlText}"
+                 Watermark="https://soundcloud.com/artist/track"
+                 Background="{StaticResource BackgroundBrush}"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap" />
+      </ScrollViewer>
 
       <StackPanel Orientation="Horizontal" Spacing="10">
         <ComboBox Width="140"

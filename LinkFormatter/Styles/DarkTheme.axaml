@@ -16,4 +16,5 @@
 
   <Color x:Key="SystemAccentColor">#D97757</Color>
   <SolidColorBrush x:Key="SystemAccentColorBrush" Color="{StaticResource SystemAccentColor}" />
+
 </ResourceDictionary>

@@ -7,17 +7,18 @@
                  FontSize="16"
                  FontWeight="SemiBold"
                  Foreground="{StaticResource TextBrush}" />
-      <ScrollViewer Height="140" Background="{StaticResource BackgroundBrush}">
-        <ItemsControl ItemsSource="{Binding Lines}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding}"
-                         FontFamily="Consolas"
-                         FontSize="12"
-                         Foreground="{StaticResource TextBrush}" />
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
+      <ScrollViewer Height="140"
+                    Background="{StaticResource BackgroundBrush}"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible">
+        <TextBox Text="{Binding Content}"
+                 IsReadOnly="True"
+                 AcceptsReturn="True"
+                 TextWrapping="NoWrap"
+                 FontFamily="Consolas"
+                 FontSize="12"
+                 Foreground="{StaticResource TextBrush}"
+                 Background="{StaticResource BackgroundBrush}" />
       </ScrollViewer>
     </StackPanel>
   </Border>

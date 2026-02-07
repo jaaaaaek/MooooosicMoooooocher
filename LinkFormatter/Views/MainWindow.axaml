@@ -22,18 +22,23 @@
       </Grid.ColumnDefinitions>
 
       <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" Padding="16">
-        <Border Background="{StaticResource SurfaceBrush}"
-                CornerRadius="8"
-                Padding="12">
-          <views:SettingsPanelView DataContext="{Binding SettingsPanel}" />
-        </Border>
+        <Grid RowDefinitions="Auto,*">
+          <Border Background="{StaticResource SurfaceBrush}"
+                  CornerRadius="8"
+                  Padding="12">
+            <views:SettingsPanelView DataContext="{Binding SettingsPanel}" />
+          </Border>
+          <views:FilesListView Grid.Row="1"
+                               Margin="0,12,0,0"
+                               VerticalAlignment="Stretch"
+                               DataContext="{Binding FilesList}" />
+        </Grid>
       </Border>
 
-      <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,*,Auto,Auto">
+      <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,*,Auto">
         <views:UrlInputView Grid.Row="0" Margin="0,0,0,12" DataContext="{Binding UrlInput}" />
         <views:DownloadQueueView Grid.Row="1" Margin="0,0,0,12" DataContext="{Binding DownloadQueue}" />
-        <views:ProgressConsoleView Grid.Row="2" Margin="0,0,0,12" DataContext="{Binding ProgressConsole}" />
-        <views:FilesListView Grid.Row="3" DataContext="{Binding FilesList}" />
+        <views:ProgressConsoleView Grid.Row="2" DataContext="{Binding ProgressConsole}" />
       </Grid>
 
     <Border Background="#AA000000"

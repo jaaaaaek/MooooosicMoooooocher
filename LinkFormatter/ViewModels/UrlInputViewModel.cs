@@ -54,28 +54,63 @@ namespace LinkFormatter.ViewModels
 
         private void AddUrl()
         {
-            var existingUrls = _existingUrlsProvider?.Invoke();
-            var result = _validator.Validate(UrlText, existingUrls);
+            var existingUrls = _existingUrlsProvider?.Invoke() ?? Array.Empty<string>();
+            var added = new List<DownloadItem>();
+            var errors = new List<string>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            if (!result.IsValid)
+            var lines = UrlText
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.Trim())
+                .Where(line => !string.IsNullOrWhiteSpace(line));
+
+            foreach (var line in lines)
+            {
+                if (!seen.Add(line))
+                {
+                    errors.Add($"Duplicate in list: {line}");
+                    continue;
+                }
+
+                var result = _validator.Validate(line, existingUrls);
+                if (!result.IsValid)
+                {
+                    errors.Add($"{line} ({result.Message})");
+                    continue;
+                }
+
+                added.Add(new DownloadItem
+                {
+                    Url = line,
+                    Format = SelectedFormat,
+                    Status = DownloadStatus.Pending
+                });
+            }
+
+            if (added.Count == 0)
             {
                 HasError = true;
-                ValidationMessage = result.Message;
+                ValidationMessage = errors.Count > 0 ? errors[0] : "No valid URLs found.";
                 return;
             }
 
-            var item = new DownloadItem
+            foreach (var item in added)
             {
-                Url = UrlText.Trim(),
-                Format = SelectedFormat,
-                Status = DownloadStatus.Pending
-            };
+                UrlSubmitted?.Invoke(item);
+            }
 
-            HasError = false;
-            ValidationMessage = string.Empty;
             UrlText = string.Empty;
 
-            UrlSubmitted?.Invoke(item);
+            if (errors.Count > 0)
+            {
+                HasError = true;
+                ValidationMessage = $"Added {added.Count}. Skipped {errors.Count}. First issue: {errors[0]}";
+            }
+            else
+            {
+                HasError = false;
+                ValidationMessage = string.Empty;
+            }
         }
     }
 }

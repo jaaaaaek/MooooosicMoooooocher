@@ -200,7 +200,10 @@ namespace LinkFormatter.ViewModels
 
             var progress = new Progress<DownloadProgress>(update =>
             {
-                item.Progress = update.PercentComplete;
+                if (update.Percent.HasValue)
+                {
+                    item.Progress = update.PercentComplete;
+                }
                 if (!string.IsNullOrWhiteSpace(update.Message))
                 {
                     ProgressConsole.AppendLine(update.Message);

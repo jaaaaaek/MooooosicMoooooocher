@@ -111,15 +111,20 @@ namespace LinkFormatter.Services
                 }
 
                 var progressMatch = ProgressRegex.Match(line);
+                bool isProgressLine = progressMatch.Success &&
+                    line.StartsWith("[download]", StringComparison.OrdinalIgnoreCase) &&
+                    !line.Contains("Destination:", StringComparison.OrdinalIgnoreCase);
+
+                var update = new DownloadProgress
+                {
+                    Phase = DownloadPhase.Downloading,
+                    Message = isProgressLine ? string.Empty : line
+                };
+
                 if (progressMatch.Success &&
                     double.TryParse(progressMatch.Groups["percent"].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var percent))
                 {
-                    progress?.Report(new DownloadProgress
-                    {
-                        Phase = DownloadPhase.Downloading,
-                        Percent = percent,
-                        Message = $"Downloading... {percent:F1}%"
-                    });
+                    update.Percent = percent;
                 }
 
                 var destinationMatch = DestinationRegex.Match(line);
@@ -127,6 +132,8 @@ namespace LinkFormatter.Services
                 {
                     outputFileName = destinationMatch.Groups["name"].Value.Trim();
                 }
+
+                progress?.Report(update);
             }
 
             process.OutputDataReceived += (_, e) => HandleLine(e.Data);
@@ -142,6 +149,12 @@ namespace LinkFormatter.Services
 
             try
             {
+                progress?.Report(new DownloadProgress
+                {
+                    Phase = DownloadPhase.Downloading,
+                    Message = $"CMD: \"{ytDlpPath}\" {arguments}"
+                });
+
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();

@@ -22,6 +22,7 @@ namespace LinkFormatter.ViewModels
                 {
                     Model.Url = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(DisplayName));
                 }
             }
         }
@@ -90,5 +91,7 @@ namespace LinkFormatter.ViewModels
                 }
             }
         }
+
+        public string DisplayName => Url;
     }
 }

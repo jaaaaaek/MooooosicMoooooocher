@@ -1,6 +1,8 @@
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using Avalonia.Interactivity;
 using LinkFormatter.ViewModels;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LinkFormatter.Views
@@ -19,20 +21,22 @@ namespace LinkFormatter.Views
                 return;
             }
 
-            if (TopLevel.GetTopLevel(this) is not Window window)
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel?.StorageProvider is null)
             {
                 return;
             }
 
-            var dialog = new OpenFolderDialog
+            var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
-                Title = "Select Output Folder"
-            };
+                Title = "Select Output Folder",
+                AllowMultiple = false
+            });
 
-            var selectedFolder = await dialog.ShowAsync(window);
-            if (!string.IsNullOrWhiteSpace(selectedFolder))
+            var selectedFolder = folders.FirstOrDefault();
+            if (selectedFolder is not null)
             {
-                viewModel.OutputFolder = selectedFolder;
+                viewModel.OutputFolder = selectedFolder.Path.LocalPath;
             }
         }
     }
