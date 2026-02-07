@@ -39,9 +39,10 @@ namespace LinkFormatter.Services
     {
         public long BytesDownloaded { get; set; }
         public long? TotalBytes { get; set; }
-        public double PercentComplete => TotalBytes.HasValue && TotalBytes.Value > 0
+        public double? Percent { get; set; }
+        public double PercentComplete => Percent ?? (TotalBytes.HasValue && TotalBytes.Value > 0
             ? (double)BytesDownloaded / TotalBytes.Value * 100
-            : 0;
+            : 0);
         public string Message { get; set; } = string.Empty;
         public DownloadPhase Phase { get; set; }
     }
