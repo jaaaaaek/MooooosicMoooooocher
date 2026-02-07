@@ -25,9 +25,7 @@
     <None Update="Music\yt-dlp.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Music\ffmpeg.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <!-- ffmpeg.exe will be downloaded automatically on first run -->
   </ItemGroup>
 
 </Project>
