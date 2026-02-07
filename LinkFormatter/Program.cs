@@ -1,106 +1,147 @@
-﻿using System.Configuration;
+using System.Configuration;
+using System.Text;
+
 namespace LinkFormatter
 {
     internal class Program
     {
         static void Main()
         {
+            PrintHeader();
+
             try
             {
-                string formattedLinks = FormatLinks();
+                string formattedCommands = FormatLinks();
+                int commandCount = formattedCommands.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length;
 
-                Console.Write("\n\n");
-                Console.Write("Here are the formatted links! Paste them into the \"Music\" folder for them to be downloaded!");
-                Console.Write("\n\n");
-                Console.Write(formattedLinks);
-                Console.Write("\n\n");
+                PrintSuccess(commandCount);
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(formattedCommands);
+                Console.ResetColor();
+                PrintFooter();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.Write("\n\n");
-                Console.Write("Error! " + e.Message);
-                Console.Write("\n\n");
+                PrintError(e.Message);
             }
+        }
+
+        static void PrintHeader()
+        {
+            const int boxWidth = 70;
+            string border = new string('═', boxWidth);
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine();
+            Console.WriteLine("        .       *           .        *        .    ");
+            Console.WriteLine("    *        .        *           .        .       ");
+            Console.WriteLine("        .        *        .    *       *           ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"   ╔{border}╗");
+            PrintBoxLine("", boxWidth);
+            PrintBoxLine("                                    .-.    .-.    .-.", boxWidth);
+            PrintBoxLine("                                .--'   '--'   '--'   '--.", boxWidth);
+            PrintBoxLine("  ____                        _  ____ _                 _", boxWidth);
+            PrintBoxLine(" / ___|  ___  _   _ _ __   __| |/ ___| | ___  _   _  __| |", boxWidth);
+            PrintBoxLine(@" \___ \ / _ \| | | | '_ \ / _` | |   | |/ _ \| | | |/ _` |", boxWidth);
+            PrintBoxLine("  ___) | (_) | |_| | | | | (_| | |___| | (_) | |_| | (_| |", boxWidth);
+            PrintBoxLine(@" |____/ \___/ \__,_|_| |_|\__,_|\____|_|\___/ \__,_|\__,_|", boxWidth);
+            PrintBoxLine("                                '--..                ..--'", boxWidth);
+            PrintBoxLine("", boxWidth);
+            PrintBoxLine("        L I N K   F O R M A A A A A A A A T T E R", boxWidth);
+            Console.WriteLine($"   ╚{border}╝");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("        *        .    *       *        .       *   ");
+            Console.WriteLine("    .        *           .        .       *        ");
+            Console.WriteLine("        .       *           .        *        .    ");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        static void PrintBoxLine(string content, int width)
+        {
+            Console.WriteLine($"   ║{content.PadRight(width)}║");
+        }
+
+        static void PrintSuccess(int count)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"  [+] {count} command(s) generated successfully!");
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("  [>] Paste these into the \"Music\" folder to download.");
+            Console.ResetColor();
+        }
+
+        static void PrintFooter()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("  ──────────────────────────────────────────");
+            Console.WriteLine("  Done. Happy listening!");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        static void PrintError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine();
+            Console.WriteLine("  [X] Error: " + message);
+            Console.ResetColor();
+            Console.WriteLine();
         }
 
         static string FormatLinks()
         {
-            string authToken = ConfigurationManager.AppSettings["SoundCloudToken"];
+            string? authToken = ConfigurationManager.AppSettings["SoundCloudToken"];
             string currentDir = Directory.GetCurrentDirectory();
-            string returnme = string.Empty;
 
-            try
+            if (string.IsNullOrWhiteSpace(authToken))
             {
-                if (string.IsNullOrWhiteSpace(authToken))
-                {
-                    throw new Exception("No \"SoundCloudToken\" value found in app.config!");
-                }
-
-                List<string> existingLinks = GenerateExistingLinks(currentDir);
-
-                returnme = GenerateFormattedLinks(currentDir, authToken, existingLinks);
-                return returnme;
-                
+                throw new Exception("No \"SoundCloudToken\" value found in app.config!");
             }
-            catch (Exception e)
-            {
-                throw;
-            }
+
+            List<string> existingLinks = GenerateExistingLinks(currentDir);
+
+            return GenerateFormattedLinks(currentDir, authToken, existingLinks);
         }
+
         static string GenerateFormattedLinks(string currentDir, string authToken, List<string> existingLinks)
         {
-            string returnme = string.Empty;
-            try
-            {
-                // Go through links in NewDownloads.txt and format them!
-                StreamReader sr = new StreamReader(currentDir + "\\Music\\NewDownloads.txt");
-                string lineNew = sr.ReadLine();
-                if (string.IsNullOrWhiteSpace(lineNew))
-                {
-                    throw new Exception("No links found in NewDownloads.txt! Put some links from soundcloud in there!");
-                }
+            StringBuilder formattedCommands = new StringBuilder();
 
-                while (lineNew != null)
-                {
-                    // if link does not exist in existingLinks,
-                    if (lineNew.Count(x => x.Equals('/')) != 3 &&              // isn't an album/artist link (three /'s),
-                        !lineNew.Contains("\\you\\")                           // doesn't contain /you/,
-                        && !existingLinks.Any(x => x.Equals(lineNew.Trim())))  // and doesn't have a match within all song names in target directory
-                    {
-                        // format to be returned. 
-                        returnme += $"yt-dlp -f ba --extract-audio --audio-format wav {lineNew} --add-header \"Authorization: OAuth {authToken}\" --extractor-retries 10 --retry-sleep extractor:300\n";
+            string[] lines = File.ReadAllLines(Path.Combine(currentDir, "Music", "NewDownloads.txt"));
 
-                    }
-                    lineNew = sr.ReadLine();
-                }
-                sr.Close();
-                return returnme;
-            }
-            catch(Exception e)
+            if (lines.Length == 0 || lines.All(string.IsNullOrWhiteSpace))
             {
-                throw;
+                throw new Exception("No links found in NewDownloads.txt! Put some links from soundcloud in there!");
             }
+
+            foreach (string line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                if (line.Count(x => x == '/') != 3 &&
+                    !line.Contains("/you/") &&
+                    !existingLinks.Any(x => x.Equals(line.Trim())))
+                {
+                    formattedCommands.AppendLine($"yt-dlp -f ba --extract-audio --audio-format wav {line} --add-header \"Authorization: OAuth {authToken}\" --extractor-retries 10 --retry-sleep extractor:300");
+                }
+            }
+
+            return formattedCommands.ToString();
         }
+
         static List<string> GenerateExistingLinks(string currentDir)
         {
-            List<string> returnme = new List<string>();
-            try
-            {
-                // Go through ExistingDownloads.txt and put each line in the existingLinks collection
-                StreamReader sr = new StreamReader(currentDir + "\\Music\\ExistingDownloads.txt");
-                string lineExisting = sr.ReadLine();
-                while (lineExisting != null)
-                {
-                    returnme.Add(lineExisting.Trim());
-                    lineExisting = sr.ReadLine();
-                }
-                sr.Close();
-                return returnme;
-            }
-            catch(Exception e)
-            {
-                throw;
-            }
+            string[] lines = File.ReadAllLines(Path.Combine(currentDir, "Music", "ExistingDownloads.txt"));
+
+            return lines
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Select(line => line.Trim())
+                .ToList();
         }
     }
 }
