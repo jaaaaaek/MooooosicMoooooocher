@@ -1,0 +1,47 @@
+<UserControl x:Class="LinkFormatter.Views.DownloadQueueView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
+    <StackPanel Spacing="8">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+        <TextBlock Text="Download Queue"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextBrush}" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+          <Button Content="Clear Done"
+                  Command="{Binding ClearCompletedCommand}"
+                  Background="{StaticResource BackgroundBrush}" />
+        </StackPanel>
+      </StackPanel>
+
+      <ListBox Items="{Binding Items}" Background="{StaticResource BackgroundBrush}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Border Padding="8" BorderThickness="0,0,0,1" BorderBrush="#333333">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding Url}" Foreground="{StaticResource TextBrush}" />
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding Progress}" Height="6" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding Status}" Foreground="{StaticResource TextBrush}" />
+                  <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource ErrorBrush}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Button Content="Up"
+                          Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          CommandParameter="{Binding}" />
+                  <Button Content="Down"
+                          Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          CommandParameter="{Binding}" />
+                  <Button Content="Remove"
+                          Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          CommandParameter="{Binding}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+  </Border>
+</UserControl>

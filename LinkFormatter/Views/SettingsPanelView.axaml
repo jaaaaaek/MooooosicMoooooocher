@@ -1,0 +1,35 @@
+<UserControl x:Class="LinkFormatter.Views.SettingsPanelView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:LinkFormatter.Models">
+  <StackPanel Spacing="12">
+    <TextBlock Text="Settings"
+               FontSize="18"
+               FontWeight="SemiBold"
+               Foreground="{StaticResource TextBrush}" />
+
+    <StackPanel Spacing="6">
+      <TextBlock Text="Output Folder" Foreground="{StaticResource TextBrush}" />
+      <TextBox Text="{Binding OutputFolder}"
+               Watermark="C:\Music"
+               Background="{StaticResource SurfaceBrush}" />
+    </StackPanel>
+
+    <StackPanel Spacing="6">
+      <TextBlock Text="SoundCloud Token" Foreground="{StaticResource TextBrush}" />
+      <TextBox Text="{Binding SoundCloudToken}"
+               Watermark="Optional for WAV"
+               Background="{StaticResource SurfaceBrush}" />
+    </StackPanel>
+
+    <StackPanel Spacing="6">
+      <TextBlock Text="Default Format" Foreground="{StaticResource TextBrush}" />
+      <ComboBox SelectedValue="{Binding PreferredFormat}"
+                SelectedValuePath="Tag"
+                Background="{StaticResource SurfaceBrush}">
+        <ComboBoxItem Content="MP3" Tag="{x:Static models:AudioFormat.MP3}" />
+        <ComboBoxItem Content="WAV" Tag="{x:Static models:AudioFormat.WAV}" />
+      </ComboBox>
+    </StackPanel>
+  </StackPanel>
+</UserControl>
