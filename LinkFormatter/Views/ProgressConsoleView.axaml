@@ -1,0 +1,24 @@
+<UserControl x:Class="LinkFormatter.Views.ProgressConsoleView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
+    <StackPanel Spacing="8">
+      <TextBlock Text="Progress Console"
+                 FontSize="16"
+                 FontWeight="SemiBold"
+                 Foreground="{StaticResource TextBrush}" />
+      <ScrollViewer Height="140" Background="{StaticResource BackgroundBrush}">
+        <ItemsControl Items="{Binding Lines}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding}"
+                         FontFamily="Consolas"
+                         FontSize="12"
+                         Foreground="{StaticResource TextBrush}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </StackPanel>
+  </Border>
+</UserControl>

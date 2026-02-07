@@ -1,0 +1,34 @@
+<Window x:Class="LinkFormatter.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:LinkFormatter.Views"
+        Width="1200"
+        Height="800"
+        Background="{StaticResource BackgroundBrush}"
+        Title="SoundCloud Downloader">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="260" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" Padding="16">
+      <views:SettingsPanelView DataContext="{Binding SettingsPanel}" />
+    </Border>
+
+    <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,*,Auto,Auto" RowSpacing="12">
+      <views:UrlInputView Grid.Row="0" DataContext="{Binding UrlInput}" />
+      <views:DownloadQueueView Grid.Row="1" DataContext="{Binding DownloadQueue}" />
+      <views:ProgressConsoleView Grid.Row="2" DataContext="{Binding ProgressConsole}" />
+      <views:FilesListView Grid.Row="3" DataContext="{Binding FilesList}" />
+    </Grid>
+
+    <Border Background="#AA000000"
+            IsVisible="{Binding IsWelcomeVisible}">
+      <Grid HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+        <views:WelcomeView DataContext="{Binding Welcome}" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
