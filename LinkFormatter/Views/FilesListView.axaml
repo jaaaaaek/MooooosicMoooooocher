@@ -3,15 +3,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12" VerticalAlignment="Stretch">
     <Grid RowDefinitions="Auto,*">
-      <Grid ColumnDefinitions="*,Auto">
+      <Grid ColumnDefinitions="*,Auto,Auto">
         <TextBlock Text="Downloaded Files"
                    FontSize="16"
                    FontWeight="SemiBold"
                    Foreground="{StaticResource TextBrush}" />
         <Button Grid.Column="1"
-                Content="Refresh"
+                Margin="6,0,0,0"
+                ToolTip.Tip="Refresh"
+                FontSize="14"
+                Padding="6,2"
+                MinHeight="24"
                 Command="{Binding RefreshCommand}"
-                Background="{StaticResource BackgroundBrush}" />
+                Background="{StaticResource BackgroundBrush}">
+          <TextBlock Text="↻" />
+        </Button>
+        <Button Grid.Column="2"
+                Margin="6,0,0,0"
+                ToolTip.Tip="Clear"
+                FontSize="14"
+                Padding="6,2"
+                MinHeight="24"
+                Click="OnClearClicked"
+                Background="{StaticResource BackgroundBrush}">
+          <TextBlock Text="🗑" />
+        </Button>
       </Grid>
 
       <Border Grid.Row="1"

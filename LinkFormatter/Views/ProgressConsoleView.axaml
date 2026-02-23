@@ -3,14 +3,45 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
     <StackPanel Spacing="8">
-      <TextBlock Text="Progress Console"
-                 FontSize="16"
-                 FontWeight="SemiBold"
-                 Foreground="{StaticResource TextBrush}" />
+      <WrapPanel>
+        <TextBlock Text="Progress Console"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextBrush}"
+                   Margin="0,0,8,0" />
+        <Button Command="{Binding ToggleExpandCommand}"
+                FontSize="11"
+                Padding="4,1"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                Foreground="{StaticResource ClaudeOrangeBrush}">
+          <Panel>
+            <TextBlock Text="Expand" IsVisible="{Binding !IsExpanded}" />
+            <TextBlock Text="Collapse" IsVisible="{Binding IsExpanded}" />
+          </Panel>
+        </Button>
+      </WrapPanel>
       <ScrollViewer Height="140"
+                    IsVisible="{Binding !IsExpanded}"
                     Background="{StaticResource BackgroundBrush}"
                     HorizontalScrollBarVisibility="Auto"
-                    VerticalScrollBarVisibility="Visible">
+                    VerticalScrollBarVisibility="Visible"
+                    AllowAutoHide="False">
+        <TextBox Text="{Binding Content}"
+                 IsReadOnly="True"
+                 AcceptsReturn="True"
+                 TextWrapping="NoWrap"
+                 FontFamily="Consolas"
+                 FontSize="12"
+                 Foreground="{StaticResource TextBrush}"
+                 Background="{StaticResource BackgroundBrush}" />
+      </ScrollViewer>
+      <ScrollViewer Height="500"
+                    IsVisible="{Binding IsExpanded}"
+                    Background="{StaticResource BackgroundBrush}"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible"
+                    AllowAutoHide="False">
         <TextBox Text="{Binding Content}"
                  IsReadOnly="True"
                  AcceptsReturn="True"

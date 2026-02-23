@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using LinkFormatter.Models;
 using LinkFormatter.Services;
 
@@ -10,18 +11,22 @@ namespace LinkFormatter.ViewModels
         private string _urlText = string.Empty;
         private string _validationMessage = string.Empty;
         private bool _hasError;
+        private bool _showErrorDetails;
         private AudioFormat _selectedFormat = AudioFormat.MP3;
 
         public UrlInputViewModel(IUrlValidator validator)
         {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
             AddUrlCommand = new RelayCommand(AddUrl);
+            ToggleErrorDetailsCommand = new RelayCommand(() => ShowErrorDetails = !ShowErrorDetails);
         }
 
         public event Action<DownloadItem>? UrlSubmitted;
 
         public RelayCommand AddUrlCommand { get; }
+        public RelayCommand ToggleErrorDetailsCommand { get; }
         public IReadOnlyList<AudioFormat> Formats { get; } = Enum.GetValues<AudioFormat>();
+        public ObservableCollection<string> ErrorDetails { get; } = new();
 
         public string UrlText
         {
@@ -46,6 +51,14 @@ namespace LinkFormatter.ViewModels
             get => _hasError;
             private set => SetProperty(ref _hasError, value);
         }
+
+        public bool ShowErrorDetails
+        {
+            get => _showErrorDetails;
+            set => SetProperty(ref _showErrorDetails, value);
+        }
+
+        public bool HasMultipleErrors => ErrorDetails.Count > 0;
 
         public void SetExistingUrlsProvider(Func<IReadOnlyCollection<string>> provider)
         {
@@ -87,10 +100,17 @@ namespace LinkFormatter.ViewModels
                 });
             }
 
+            ErrorDetails.Clear();
+            ShowErrorDetails = false;
+
             if (added.Count == 0)
             {
                 HasError = true;
-                ValidationMessage = errors.Count > 0 ? errors[0] : "No valid URLs found.";
+                ValidationMessage = errors.Count > 0
+                    ? $"Skipped {errors.Count}. No valid URLs found."
+                    : "No valid URLs found.";
+                foreach (var e in errors) ErrorDetails.Add(e);
+                OnPropertyChanged(nameof(HasMultipleErrors));
                 return;
             }
 
@@ -104,13 +124,15 @@ namespace LinkFormatter.ViewModels
             if (errors.Count > 0)
             {
                 HasError = true;
-                ValidationMessage = $"Added {added.Count}. Skipped {errors.Count}. First issue: {errors[0]}";
+                ValidationMessage = $"Added {added.Count}. Skipped {errors.Count}.";
+                foreach (var e in errors) ErrorDetails.Add(e);
             }
             else
             {
                 HasError = false;
                 ValidationMessage = string.Empty;
             }
+            OnPropertyChanged(nameof(HasMultipleErrors));
         }
     }
 }

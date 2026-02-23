@@ -4,12 +4,19 @@ namespace LinkFormatter.Services
 {
     public class UrlValidator : IUrlValidator
     {
+        private static readonly HashSet<string> ReservedPaths = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "charts", "company", "discover", "feed", "getstarted", "imprint",
+            "messages", "notifications", "pages", "terms-of-use", "transparency-reports",
+            "upload", "you", "artists", "stations"
+        };
+
         private static readonly Regex TrackRegex = new(
-            "^https?://soundcloud\\.com/[\\w-]+/[\\w-]+",
+            @"^https?://soundcloud\.com/[\w-]+/[\w-]+/?(\?.*)?$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex SetRegex = new(
-            "^https?://soundcloud\\.com/[\\w-]+/sets/[\\w-]+",
+            @"^https?://soundcloud\.com/[\w-]+/sets/[\w-]+/?(\?.*)?$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public UrlValidationResult Validate(string url, IReadOnlyCollection<string>? existingUrls = null)
@@ -37,14 +44,15 @@ namespace LinkFormatter.Services
                 return new UrlValidationResult(false, "Only soundcloud.com URLs are supported.");
             }
 
-            if (url.Count(c => c == '/') == 3)
+            var segments = uri.AbsolutePath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length < 2)
             {
                 return new UrlValidationResult(false, "URL is missing a track or set path.");
             }
 
-            if (url.Contains("/you/", StringComparison.OrdinalIgnoreCase))
+            if (ReservedPaths.Contains(segments[0]))
             {
-                return new UrlValidationResult(false, "User profile URLs are not supported.");
+                return new UrlValidationResult(false, "URL is a SoundCloud system page, not a track or set.");
             }
 
             if (!TrackRegex.IsMatch(url) && !SetRegex.IsMatch(url))

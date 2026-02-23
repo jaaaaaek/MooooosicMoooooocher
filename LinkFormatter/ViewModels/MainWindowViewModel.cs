@@ -52,6 +52,7 @@ namespace LinkFormatter.ViewModels
 
             StartDownloadsCommand = new AsyncRelayCommand(ProcessQueueAsync, () => !_isProcessingQueue);
             StopAllCommand = new RelayCommand(StopAllDownloads, () => _isProcessingQueue);
+            ClearDownloadedFilesCommand = new AsyncRelayCommand(ClearDownloadedFilesAsync);
             ZoomInCommand = new RelayCommand(() => AdjustZoom(1));
             ZoomOutCommand = new RelayCommand(() => AdjustZoom(-1));
             ResetZoomCommand = new RelayCommand(() => ZoomLevel = 1.0);
@@ -72,6 +73,7 @@ namespace LinkFormatter.ViewModels
 
         public AsyncRelayCommand StartDownloadsCommand { get; }
         public RelayCommand StopAllCommand { get; }
+        public AsyncRelayCommand ClearDownloadedFilesCommand { get; }
         public RelayCommand ZoomInCommand { get; }
         public RelayCommand ZoomOutCommand { get; }
         public RelayCommand ResetZoomCommand { get; }
@@ -125,7 +127,10 @@ namespace LinkFormatter.ViewModels
             _suppressSettingsSave = false;
 
             UrlInput.SelectedFormat = _settings.PreferredFormat;
-            UrlInput.SetExistingUrlsProvider(() => _settings.DownloadedUrls);
+            UrlInput.SetExistingUrlsProvider(() =>
+                _settings.DownloadedUrls
+                    .Concat(DownloadQueue.Items.Select(i => i.Url))
+                    .ToList());
             FilesList.OutputFolder = _settings.OutputFolder;
             FilesList.SetDownloadedFilesProvider(() => _settings.DownloadedFiles);
             Welcome.ApplySettings(_settings);
@@ -162,6 +167,14 @@ namespace LinkFormatter.ViewModels
 
         private async Task ProcessQueueAsync()
         {
+            foreach (var item in DownloadQueue.Items)
+            {
+                if (item.Status == DownloadStatus.Cancelled)
+                {
+                    item.Status = DownloadStatus.Pending;
+                }
+            }
+
             _isProcessingQueue = true;
             StartDownloadsCommand.RaiseCanExecuteChanged();
             StopAllCommand.RaiseCanExecuteChanged();
@@ -296,6 +309,18 @@ namespace LinkFormatter.ViewModels
             }
 
             return false;
+        }
+
+        private async Task ClearDownloadedFilesAsync()
+        {
+            if (_settings.DownloadedFiles.Count == 0)
+            {
+                return;
+            }
+
+            _settings.DownloadedFiles.Clear();
+            await _settingsService.SaveAsync(_settings);
+            FilesList.Refresh();
         }
 
         private void AdjustZoom(int direction)

@@ -13,7 +13,7 @@
                   Command="{Binding DataContext.StartDownloadsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                   Background="{StaticResource ClaudeOrangeBrush}"
                   Foreground="White" />
-          <Button Content="Stop All"
+          <Button Content="Stop"
                   Command="{Binding DataContext.StopAllCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                   Background="{StaticResource BackgroundBrush}" />
           <Button Content="Clear Done"
@@ -28,29 +28,54 @@
                Background="{StaticResource BackgroundBrush}"
                ScrollViewer.VerticalScrollBarVisibility="Auto"
                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-               VerticalAlignment="Stretch">
+               VerticalAlignment="Top">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="12" />
+            <Setter Property="Height" Value="24" />
+          </Style>
+          <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#44FFFFFF" />
+          </Style>
+          <Style Selector="ListBoxItem:pointerover">
+            <Setter Property="Background" Value="#44FFFFFF" />
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="8" />
+          </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Border Padding="0" BorderThickness="0,0,0,1" BorderBrush="#333333">
+            <Border Padding="0" BorderThickness="0" CornerRadius="3" Margin="0" ClipToBounds="True">
               <Grid ClipToBounds="True">
                 <ProgressBar Minimum="0"
                              Maximum="100"
                              Value="{Binding Progress}"
                              VerticalAlignment="Stretch"
                              HorizontalAlignment="Stretch"
-                              Background="{StaticResource ClaudeOrangeBrush}"
-                              Foreground="#2F6F3E"
-                              IsHitTestVisible="False" />
-                <Border Padding="6" Background="Transparent">
-                  <StackPanel Spacing="4">
+                             Background="{StaticResource ClaudeOrangeBrush}"
+                             Foreground="#2F6F3E"
+                             CornerRadius="6"
+                             IsHitTestVisible="False" />
+                <Border Padding="2,0" Background="Transparent" VerticalAlignment="Center">
+                  <StackPanel Spacing="2">
                     <Grid ColumnDefinitions="*">
                       <TextBlock Text="{Binding DisplayName}"
                                  Foreground="{StaticResource TextBrush}"
                                  TextTrimming="CharacterEllipsis"
+                                 FontSize="12"
                                  VerticalAlignment="Center"
-                                 Margin="0,0,8,0" />
+                                 HorizontalAlignment="Stretch"
+                                 TextAlignment="Center"
+                                 Margin="0" />
                     </Grid>
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource ErrorBrush}" FontSize="12" />
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="{StaticResource ErrorBrush}"
+                               FontSize="11"
+                               IsVisible="{Binding HasErrorMessage}" />
                   </StackPanel>
                 </Border>
               </Grid>

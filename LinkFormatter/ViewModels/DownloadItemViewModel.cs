@@ -75,6 +75,7 @@ namespace LinkFormatter.ViewModels
                 {
                     Model.ErrorMessage = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasErrorMessage));
                 }
             }
         }
@@ -92,6 +93,26 @@ namespace LinkFormatter.ViewModels
             }
         }
 
-        public string DisplayName => Url;
+        public string DisplayName => GetUrlTitle(Url);
+
+        public bool HasErrorMessage => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+        private static string GetUrlTitle(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return string.Empty;
+            }
+
+            string trimmed = url.Trim().TrimEnd('/');
+            int lastSlash = trimmed.LastIndexOf('/');
+            if (lastSlash < 0 || lastSlash == trimmed.Length - 1)
+            {
+                return trimmed;
+            }
+
+            string title = trimmed[(lastSlash + 1)..];
+            return title.Replace('-', ' ');
+        }
     }
 }

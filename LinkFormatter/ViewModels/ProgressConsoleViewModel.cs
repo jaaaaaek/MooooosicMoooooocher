@@ -6,8 +6,21 @@ namespace LinkFormatter.ViewModels
     {
         private int _maxLines = 500;
         private string _content = string.Empty;
+        private bool _isExpanded;
 
+        public ProgressConsoleViewModel()
+        {
+            ToggleExpandCommand = new RelayCommand(() => IsExpanded = !IsExpanded);
+        }
+
+        public RelayCommand ToggleExpandCommand { get; }
         public ObservableCollection<string> Lines { get; } = new();
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set => SetProperty(ref _isExpanded, value);
+        }
 
         public int MaxLines
         {

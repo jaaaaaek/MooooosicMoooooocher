@@ -11,7 +11,8 @@
       <ScrollViewer Height="96"
                     Background="{StaticResource BackgroundBrush}"
                     HorizontalScrollBarVisibility="Disabled"
-                    VerticalScrollBarVisibility="Auto">
+                    VerticalScrollBarVisibility="Auto"
+                    AllowAutoHide="False">
         <TextBox Text="{Binding UrlText}"
                  Watermark="https://soundcloud.com/artist/track"
                  Background="{StaticResource BackgroundBrush}"
@@ -19,20 +20,55 @@
                  TextWrapping="Wrap" />
       </ScrollViewer>
 
-      <StackPanel Orientation="Horizontal" Spacing="10">
+      <WrapPanel Orientation="Horizontal">
         <ComboBox Width="140"
                   ItemsSource="{Binding Formats}"
                   SelectedItem="{Binding SelectedFormat}"
-                  Background="{StaticResource BackgroundBrush}" />
+                  Background="{StaticResource BackgroundBrush}"
+                  Margin="0,0,10,0" />
         <Button Content="Add"
                 Command="{Binding AddUrlCommand}"
                 Background="{StaticResource ClaudeOrangeBrush}"
-                Foreground="White" />
-      </StackPanel>
+                Foreground="White"
+                Margin="0,0,10,0" />
+        <TextBlock Text="{Binding ValidationMessage}"
+                   Foreground="{StaticResource ErrorBrush}"
+                   VerticalAlignment="Center"
+                   FontSize="13"
+                   IsVisible="{Binding HasError}"
+                   Margin="0,0,8,0" />
+        <Button IsVisible="{Binding HasMultipleErrors}"
+                Command="{Binding ToggleErrorDetailsCommand}"
+                FontSize="11"
+                Padding="4,1"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                Foreground="{StaticResource ClaudeOrangeBrush}">
+          <Panel>
+            <TextBlock Text="Show details" IsVisible="{Binding !ShowErrorDetails}" />
+            <TextBlock Text="Hide details" IsVisible="{Binding ShowErrorDetails}" />
+          </Panel>
+        </Button>
+      </WrapPanel>
 
-      <TextBlock Text="{Binding ValidationMessage}"
-                 Foreground="{StaticResource ErrorBrush}"
-                 IsVisible="{Binding HasError}" />
+      <ScrollViewer MaxHeight="400"
+                    IsVisible="{Binding ShowErrorDetails}"
+                    Background="{StaticResource BackgroundBrush}"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled"
+                    AllowAutoHide="False">
+<ItemsControl ItemsSource="{Binding ErrorDetails}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding}"
+                         Foreground="{StaticResource ErrorBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Margin="4,1" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
     </StackPanel>
   </Border>
 </UserControl>
