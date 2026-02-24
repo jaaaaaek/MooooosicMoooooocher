@@ -19,6 +19,9 @@
           <Button Content="Clear Done"
                   Command="{Binding ClearCompletedCommand}"
                   Background="{StaticResource BackgroundBrush}" />
+          <Button Content="Clear All"
+                  Command="{Binding DataContext.ClearAllQueueCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                  Background="{StaticResource BackgroundBrush}" />
         </StackPanel>
       </Grid>
 

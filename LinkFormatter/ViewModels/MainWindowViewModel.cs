@@ -57,6 +57,8 @@ namespace LinkFormatter.ViewModels
             ZoomOutCommand = new RelayCommand(() => AdjustZoom(-1));
             ResetZoomCommand = new RelayCommand(() => ZoomLevel = 1.0);
 
+            ClearAllQueueCommand = new RelayCommand(ClearAllQueue);
+
             SettingsPanel.SettingsChanged += OnSettingsChanged;
             UrlInput.UrlSubmitted += OnUrlSubmitted;
             Welcome.ContinueRequested += OnWelcomeContinue;
@@ -77,6 +79,7 @@ namespace LinkFormatter.ViewModels
         public RelayCommand ZoomInCommand { get; }
         public RelayCommand ZoomOutCommand { get; }
         public RelayCommand ResetZoomCommand { get; }
+        public RelayCommand ClearAllQueueCommand { get; }
 
         public IReadOnlyList<ZoomPreset> ZoomPresets => _zoomPresets;
 
@@ -133,6 +136,7 @@ namespace LinkFormatter.ViewModels
                     .ToList());
             FilesList.OutputFolder = _settings.OutputFolder;
             FilesList.SetDownloadedFilesProvider(() => _settings.DownloadedFiles);
+            FilesList.SetDownloadedUrlsProvider(() => _settings.DownloadedUrls);
             Welcome.ApplySettings(_settings);
 
             if (_settings.IsFirstRun)
@@ -253,7 +257,7 @@ namespace LinkFormatter.ViewModels
                 {
                     await _settingsService.SaveAsync(_settings, cancellationToken);
                 }
-                FilesList.Refresh();
+                FilesList.AddFile(result.OutputFileName);
             }
             else if (cancellationToken.IsCancellationRequested)
             {
@@ -291,6 +295,13 @@ namespace LinkFormatter.ViewModels
             }
         }
 
+        private void ClearAllQueue()
+        {
+            StopAllDownloads();
+            DownloadQueue.ClearAllCommand.Execute(null);
+            UrlInput.ClearValidation();
+        }
+
         private bool AddDownloadedFile(string? outputFileName)
         {
             if (string.IsNullOrWhiteSpace(outputFileName))
@@ -313,14 +324,15 @@ namespace LinkFormatter.ViewModels
 
         private async Task ClearDownloadedFilesAsync()
         {
-            if (_settings.DownloadedFiles.Count == 0)
+            if (_settings.DownloadedFiles.Count == 0 && _settings.DownloadedUrls.Count == 0)
             {
                 return;
             }
 
             _settings.DownloadedFiles.Clear();
+            _settings.DownloadedUrls.Clear();
             await _settingsService.SaveAsync(_settings);
-            FilesList.Refresh();
+            FilesList.ClearSession();
         }
 
         private void AdjustZoom(int direction)

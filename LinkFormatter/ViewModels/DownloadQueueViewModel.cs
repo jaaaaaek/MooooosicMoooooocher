@@ -9,6 +9,7 @@ namespace LinkFormatter.ViewModels
         {
             RemoveCommand = new RelayCommand<DownloadItemViewModel>(Remove);
             ClearCompletedCommand = new RelayCommand(ClearCompleted);
+            ClearAllCommand = new RelayCommand(ClearAll);
             MoveUpCommand = new RelayCommand<DownloadItemViewModel>(MoveUp);
             MoveDownCommand = new RelayCommand<DownloadItemViewModel>(MoveDown);
         }
@@ -17,6 +18,7 @@ namespace LinkFormatter.ViewModels
 
         public RelayCommand<DownloadItemViewModel> RemoveCommand { get; }
         public RelayCommand ClearCompletedCommand { get; }
+        public RelayCommand ClearAllCommand { get; }
         public RelayCommand<DownloadItemViewModel> MoveUpCommand { get; }
         public RelayCommand<DownloadItemViewModel> MoveDownCommand { get; }
 
@@ -49,6 +51,11 @@ namespace LinkFormatter.ViewModels
             {
                 Items.Remove(item);
             }
+        }
+
+        private void ClearAll()
+        {
+            Items.Clear();
         }
 
         private void MoveUp(DownloadItemViewModel? item)

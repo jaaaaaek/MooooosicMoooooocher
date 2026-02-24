@@ -21,10 +21,10 @@
           </Panel>
         </Button>
       </WrapPanel>
-      <ScrollViewer Height="140"
+      <ScrollViewer Height="300"
                     IsVisible="{Binding !IsExpanded}"
                     Background="{StaticResource BackgroundBrush}"
-                    HorizontalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Hidden"
                     VerticalScrollBarVisibility="Visible"
                     AllowAutoHide="False">
         <TextBox Text="{Binding Content}"
@@ -36,10 +36,10 @@
                  Foreground="{StaticResource TextBrush}"
                  Background="{StaticResource BackgroundBrush}" />
       </ScrollViewer>
-      <ScrollViewer Height="500"
+      <ScrollViewer Height="400"
                     IsVisible="{Binding IsExpanded}"
                     Background="{StaticResource BackgroundBrush}"
-                    HorizontalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Hidden"
                     VerticalScrollBarVisibility="Visible"
                     AllowAutoHide="False">
         <TextBox Text="{Binding Content}"

@@ -60,6 +60,15 @@ namespace LinkFormatter.ViewModels
 
         public bool HasMultipleErrors => ErrorDetails.Count > 0;
 
+        public void ClearValidation()
+        {
+            HasError = false;
+            ValidationMessage = string.Empty;
+            ErrorDetails.Clear();
+            ShowErrorDetails = false;
+            OnPropertyChanged(nameof(HasMultipleErrors));
+        }
+
         public void SetExistingUrlsProvider(Func<IReadOnlyCollection<string>> provider)
         {
             _existingUrlsProvider = provider;

@@ -4,19 +4,30 @@
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12" VerticalAlignment="Stretch">
     <Grid RowDefinitions="Auto,*">
       <Grid ColumnDefinitions="*,Auto,Auto">
-        <TextBlock Text="Downloaded Files"
-                   FontSize="16"
-                   FontWeight="SemiBold"
-                   Foreground="{StaticResource TextBrush}" />
+        <Panel>
+          <TextBlock Text="Downloaded Files"
+                     IsVisible="{Binding !ShowingUrls}"
+                     FontSize="16"
+                     FontWeight="SemiBold"
+                     Foreground="{StaticResource TextBrush}" />
+          <TextBlock Text="Downloaded URLs"
+                     IsVisible="{Binding ShowingUrls}"
+                     FontSize="16"
+                     FontWeight="SemiBold"
+                     Foreground="{StaticResource TextBrush}" />
+        </Panel>
         <Button Grid.Column="1"
                 Margin="6,0,0,0"
-                ToolTip.Tip="Refresh"
+                ToolTip.Tip="Show downloaded URLs"
                 FontSize="14"
                 Padding="6,2"
                 MinHeight="24"
-                Command="{Binding RefreshCommand}"
+                Command="{Binding ToggleUrlsCommand}"
                 Background="{StaticResource BackgroundBrush}">
-          <TextBlock Text="↻" />
+          <Panel>
+            <TextBlock Text="🔗" IsVisible="{Binding !ShowingUrls}" />
+            <TextBlock Text="📁" IsVisible="{Binding ShowingUrls}" />
+          </Panel>
         </Button>
         <Button Grid.Column="2"
                 Margin="6,0,0,0"
@@ -38,29 +49,19 @@
               CornerRadius="4"
               Padding="6"
               VerticalAlignment="Stretch">
-        <ListBox ItemsSource="{Binding Files}"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 MinHeight="140"
-                 VerticalAlignment="Stretch">
-          <ListBox.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Text="{Binding DisplayName}"
-                         Foreground="{StaticResource TextBrush}"
-                         FontSize="12"
-                         Background="Transparent"
-                         BorderThickness="0"
-                         IsReadOnly="True"
-                         Padding="0"
-                         MinWidth="120" />
-                <Button Content="Open"
-                        Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                        CommandParameter="{Binding}" />
-              </StackPanel>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden">
+          <TextBox Text="{Binding FilesText}"
+                   Foreground="{StaticResource TextBrush}"
+                   FontSize="12"
+                   FontFamily="Consolas"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   IsReadOnly="True"
+                   AcceptsReturn="True"
+                   TextWrapping="NoWrap"
+                   Padding="0" />
+        </ScrollViewer>
       </Border>
     </Grid>
   </Border>
