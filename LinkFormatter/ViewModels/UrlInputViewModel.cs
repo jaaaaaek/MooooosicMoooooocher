@@ -22,6 +22,7 @@ namespace LinkFormatter.ViewModels
         }
 
         public event Action<DownloadItem>? UrlSubmitted;
+        public event Action<AudioFormat>? SelectedFormatChanged;
 
         public RelayCommand AddUrlCommand { get; }
         public RelayCommand ToggleErrorDetailsCommand { get; }
@@ -37,7 +38,13 @@ namespace LinkFormatter.ViewModels
         public AudioFormat SelectedFormat
         {
             get => _selectedFormat;
-            set => SetProperty(ref _selectedFormat, value);
+            set
+            {
+                if (SetProperty(ref _selectedFormat, value))
+                {
+                    SelectedFormatChanged?.Invoke(value);
+                }
+            }
         }
 
         public string ValidationMessage
