@@ -30,5 +30,15 @@ namespace LinkFormatter.Services
 
             Process.Start(startInfo);
         }
+
+        public void OpenFolder(string folderPath)
+        {
+            if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+            {
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo(folderPath) { UseShellExecute = true });
+        }
     }
 }

@@ -3,41 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12" VerticalAlignment="Stretch">
     <Grid RowDefinitions="Auto,*">
-      <Grid ColumnDefinitions="*,Auto,Auto">
-        <Panel>
-          <TextBlock Text="Downloaded Files"
-                     IsVisible="{Binding !ShowingUrls}"
-                     FontSize="16"
-                     FontWeight="SemiBold"
-                     Foreground="{StaticResource TextBrush}" />
-          <TextBlock Text="Downloaded URLs"
-                     IsVisible="{Binding ShowingUrls}"
-                     FontSize="16"
-                     FontWeight="SemiBold"
-                     Foreground="{StaticResource TextBrush}" />
-        </Panel>
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Downloaded Files"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextBrush}" />
         <Button Grid.Column="1"
                 Margin="6,0,0,0"
-                ToolTip.Tip="Show downloaded URLs"
-                FontSize="14"
+                ToolTip.Tip="Open output folder"
                 Padding="6,2"
                 MinHeight="24"
-                Command="{Binding ToggleUrlsCommand}"
+                Command="{Binding OpenOutputFolderCommand}"
                 Background="{StaticResource BackgroundBrush}">
-          <Panel>
-            <TextBlock Text="🔗" IsVisible="{Binding !ShowingUrls}" />
-            <TextBlock Text="📁" IsVisible="{Binding ShowingUrls}" />
-          </Panel>
-        </Button>
-        <Button Grid.Column="2"
-                Margin="6,0,0,0"
-                ToolTip.Tip="Clear"
-                FontSize="14"
-                Padding="6,2"
-                MinHeight="24"
-                Click="OnClearClicked"
-                Background="{StaticResource BackgroundBrush}">
-          <TextBlock Text="🗑" />
+          <TextBlock FontFamily="Segoe MDL2 Assets"
+                     Text="&#xED25;"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Center" />
         </Button>
       </Grid>
 

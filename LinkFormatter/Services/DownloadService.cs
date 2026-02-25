@@ -101,6 +101,7 @@ namespace LinkFormatter.Services
             }
 
             string? outputFileName = null;
+            bool wasSkipped = false;
             var errorBuilder = new StringBuilder();
 
             void HandleLine(string? line)
@@ -131,6 +132,11 @@ namespace LinkFormatter.Services
                 if (destinationMatch.Success)
                 {
                     outputFileName = destinationMatch.Groups["name"].Value.Trim();
+                }
+
+                if (line.Contains("has already been recorded in the archive", StringComparison.OrdinalIgnoreCase))
+                {
+                    wasSkipped = true;
                 }
 
                 progress?.Report(update);
@@ -172,7 +178,7 @@ namespace LinkFormatter.Services
                         Message = "Download complete."
                     });
 
-                    return new DownloadResult(true, null, outputFileName);
+                    return new DownloadResult(true, null, outputFileName, wasSkipped);
                 }
 
                 string errorMessage = errorBuilder.Length > 0
@@ -220,6 +226,8 @@ namespace LinkFormatter.Services
                 builder.Append(" --add-header \"Authorization: OAuth ").Append(authToken).Append('"');
             }
 
+            string archivePath = Path.Combine(outputFolder, ".download-archive");
+            builder.Append(" --download-archive \"").Append(archivePath).Append('"');
             builder.Append(" --newline --extractor-retries 10 --retry-sleep extractor:300");
             return builder.ToString();
         }

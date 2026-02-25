@@ -72,11 +72,6 @@ namespace LinkFormatter.Services
 
         private static AppSettings Normalize(AppSettings settings)
         {
-            if (settings.DownloadedUrls == null)
-            {
-                settings.DownloadedUrls = new List<string>();
-            }
-
             if (settings.DownloadedFiles == null)
             {
                 settings.DownloadedFiles = new List<string>();

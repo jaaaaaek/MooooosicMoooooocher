@@ -131,12 +131,9 @@ namespace LinkFormatter.ViewModels
 
             UrlInput.SelectedFormat = _settings.PreferredFormat;
             UrlInput.SetExistingUrlsProvider(() =>
-                _settings.DownloadedUrls
-                    .Concat(DownloadQueue.Items.Select(i => i.Url))
-                    .ToList());
+                DownloadQueue.Items.Select(i => i.Url).ToList());
             FilesList.OutputFolder = _settings.OutputFolder;
             FilesList.SetDownloadedFilesProvider(() => _settings.DownloadedFiles);
-            FilesList.SetDownloadedUrlsProvider(() => _settings.DownloadedUrls);
             Welcome.ApplySettings(_settings);
 
             if (_settings.IsFirstRun)
@@ -234,26 +231,19 @@ namespace LinkFormatter.ViewModels
                 progress,
                 cancellationToken);
 
-            if (result.Success)
+            if (result.Success && result.WasSkipped)
+            {
+                item.Status = DownloadStatus.Skipped;
+                item.Progress = 100;
+                item.ErrorMessage = "Already downloaded.";
+            }
+            else if (result.Success)
             {
                 item.Status = DownloadStatus.Completed;
                 item.Progress = 100;
                 item.OutputFileName = result.OutputFileName ?? item.OutputFileName;
 
-                bool settingsChanged = false;
-
-                if (!_settings.DownloadedUrls.Contains(item.Url, StringComparer.OrdinalIgnoreCase))
-                {
-                    _settings.DownloadedUrls.Add(item.Url);
-                    settingsChanged = true;
-                }
-
                 if (AddDownloadedFile(result.OutputFileName))
-                {
-                    settingsChanged = true;
-                }
-
-                if (settingsChanged)
                 {
                     await _settingsService.SaveAsync(_settings, cancellationToken);
                 }
@@ -300,6 +290,8 @@ namespace LinkFormatter.ViewModels
             StopAllDownloads();
             DownloadQueue.ClearAllCommand.Execute(null);
             UrlInput.ClearValidation();
+            FilesList.ClearSession();
+            ProgressConsole.Clear();
         }
 
         private bool AddDownloadedFile(string? outputFileName)
@@ -324,13 +316,12 @@ namespace LinkFormatter.ViewModels
 
         private async Task ClearDownloadedFilesAsync()
         {
-            if (_settings.DownloadedFiles.Count == 0 && _settings.DownloadedUrls.Count == 0)
+            if (_settings.DownloadedFiles.Count == 0)
             {
                 return;
             }
 
             _settings.DownloadedFiles.Clear();
-            _settings.DownloadedUrls.Clear();
             await _settingsService.SaveAsync(_settings);
             FilesList.ClearSession();
         }

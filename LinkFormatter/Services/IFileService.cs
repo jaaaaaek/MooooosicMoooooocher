@@ -4,5 +4,6 @@ namespace LinkFormatter.Services
     {
         IReadOnlyList<string> GetDownloadedFiles(string outputFolder);
         void OpenFileLocation(string filePath);
+        void OpenFolder(string folderPath);
     }
 }

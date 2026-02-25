@@ -6,6 +6,7 @@ namespace LinkFormatter.Models
         Downloading,
         Completed,
         Failed,
-        Cancelled
+        Cancelled,
+        Skipped
     }
 }

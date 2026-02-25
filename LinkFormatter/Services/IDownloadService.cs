@@ -15,5 +15,5 @@ namespace LinkFormatter.Services
         bool IsDownloadActive(Guid downloadId);
     }
 
-    public record DownloadResult(bool Success, string? ErrorMessage, string? OutputFileName);
+    public record DownloadResult(bool Success, string? ErrorMessage, string? OutputFileName, bool WasSkipped = false);
 }

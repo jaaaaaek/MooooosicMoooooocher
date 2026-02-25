@@ -46,7 +46,7 @@ namespace LinkFormatter.ViewModels
 
         private void ClearCompleted()
         {
-            var toRemove = Items.Where(item => item.Status == DownloadStatus.Completed).ToList();
+            var toRemove = Items.Where(item => item.Status is DownloadStatus.Completed or DownloadStatus.Skipped).ToList();
             foreach (var item in toRemove)
             {
                 Items.Remove(item);
