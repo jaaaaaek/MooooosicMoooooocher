@@ -61,6 +61,7 @@ namespace LinkFormatter.ViewModels
 
             SettingsPanel.SettingsChanged += OnSettingsChanged;
             UrlInput.UrlSubmitted += OnUrlSubmitted;
+            UrlInput.SelectedFormatChanged += OnUrlInputFormatChanged;
             Welcome.ContinueRequested += OnWelcomeContinue;
 
             SelectedZoomPreset = _zoomPresets.First(p => Math.Abs(p.Value - 1.0) < 0.001);
@@ -164,6 +165,17 @@ namespace LinkFormatter.ViewModels
         private void OnUrlSubmitted(DownloadItem item)
         {
             DownloadQueue.Add(item);
+        }
+
+        private void OnUrlInputFormatChanged(AudioFormat format)
+        {
+            foreach (var item in DownloadQueue.Items)
+            {
+                if (item.Status is DownloadStatus.Pending or DownloadStatus.Cancelled or DownloadStatus.Failed)
+                {
+                    item.Format = format;
+                }
+            }
         }
 
         private async Task ProcessQueueAsync()
