@@ -63,6 +63,11 @@ namespace LinkFormatter.ViewModels
             UrlInput.UrlSubmitted += OnUrlSubmitted;
             UrlInput.SelectedFormatChanged += OnUrlInputFormatChanged;
             Welcome.ContinueRequested += OnWelcomeContinue;
+            ProgressConsole.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(ProgressConsoleViewModel.IsExpanded))
+                    OnPropertyChanged(nameof(IsConsoleExpanded));
+            };
 
             SelectedZoomPreset = _zoomPresets.First(p => Math.Abs(p.Value - 1.0) < 0.001);
         }
@@ -115,6 +120,8 @@ namespace LinkFormatter.ViewModels
         public static double MaximumZoom => MaxZoom;
         public double ZoomedFontSize => BaseFontSize * ZoomLevel;
         public string ZoomPercentDisplay => $"{Math.Round(ZoomLevel * 100)}%";
+
+        public bool IsConsoleExpanded => ProgressConsole.IsExpanded;
 
         public bool IsWelcomeVisible
         {

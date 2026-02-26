@@ -36,12 +36,15 @@
       </Border>
 
       <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,2*,3*">
-        <views:UrlInputView Grid.Row="0" Margin="0,0,0,12" DataContext="{Binding UrlInput}" />
+        <views:UrlInputView Grid.Row="0" Margin="0,0,0,12"
+                            IsVisible="{Binding !IsConsoleExpanded}"
+                            DataContext="{Binding UrlInput}" />
         <views:DownloadQueueView Grid.Row="1"
                                  Margin="0,0,0,12"
-                                 IsVisible="{Binding !UrlInput.ShowErrorDetails}"
+                                 IsVisible="{Binding !IsConsoleExpanded}"
                                  DataContext="{Binding DownloadQueue}" />
-        <views:ProgressConsoleView Grid.Row="2"
+        <views:ProgressConsoleView x:Name="ConsoleView"
+                                   Grid.Row="2"
                                    IsVisible="{Binding !UrlInput.ShowErrorDetails}"
                                    DataContext="{Binding ProgressConsole}" />
       </Grid>

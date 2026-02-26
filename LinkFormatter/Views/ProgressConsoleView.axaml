@@ -2,8 +2,8 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
-    <StackPanel Spacing="8">
-      <WrapPanel>
+    <DockPanel LastChildFill="True">
+      <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
         <TextBlock Text="Console Output"
                    FontSize="16"
                    FontWeight="SemiBold"
@@ -21,9 +21,7 @@
           </Panel>
         </Button>
       </WrapPanel>
-      <ScrollViewer Height="300"
-                    IsVisible="{Binding !IsExpanded}"
-                    Background="{StaticResource BackgroundBrush}"
+      <ScrollViewer Background="{StaticResource BackgroundBrush}"
                     HorizontalScrollBarVisibility="Hidden"
                     VerticalScrollBarVisibility="Visible"
                     AllowAutoHide="False">
@@ -36,21 +34,6 @@
                  Foreground="{StaticResource TextBrush}"
                  Background="{StaticResource BackgroundBrush}" />
       </ScrollViewer>
-      <ScrollViewer Height="400"
-                    IsVisible="{Binding IsExpanded}"
-                    Background="{StaticResource BackgroundBrush}"
-                    HorizontalScrollBarVisibility="Hidden"
-                    VerticalScrollBarVisibility="Visible"
-                    AllowAutoHide="False">
-        <TextBox Text="{Binding Content}"
-                 IsReadOnly="True"
-                 AcceptsReturn="True"
-                 TextWrapping="NoWrap"
-                 FontFamily="Consolas"
-                 FontSize="12"
-                 Foreground="{StaticResource TextBrush}"
-                 Background="{StaticResource BackgroundBrush}" />
-      </ScrollViewer>
-    </StackPanel>
+    </DockPanel>
   </Border>
 </UserControl>
