@@ -21,11 +21,6 @@
       </ScrollViewer>
 
       <WrapPanel Orientation="Horizontal">
-        <ComboBox Width="140"
-                  ItemsSource="{Binding Formats}"
-                  SelectedItem="{Binding SelectedFormat}"
-                  Background="{StaticResource BackgroundBrush}"
-                  Margin="0,0,10,0" />
         <Button Content="Add"
                 Command="{Binding AddUrlCommand}"
                 Background="{StaticResource ClaudeOrangeBrush}"

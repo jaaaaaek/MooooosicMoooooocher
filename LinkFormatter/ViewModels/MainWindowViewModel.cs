@@ -41,7 +41,7 @@ namespace LinkFormatter.ViewModels
             _downloadService = downloadService ?? throw new ArgumentNullException(nameof(downloadService));
             _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
 
-            _musicFolder = Path.Combine(AppContext.BaseDirectory, "Music");
+            _musicFolder = AppContext.BaseDirectory;
 
             SettingsPanel = new SettingsPanelViewModel();
             UrlInput = new UrlInputViewModel(urlValidator ?? throw new ArgumentNullException(nameof(urlValidator)));

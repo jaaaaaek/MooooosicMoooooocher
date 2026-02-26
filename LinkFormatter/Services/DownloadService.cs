@@ -69,10 +69,10 @@ namespace LinkFormatter.Services
                 return new DownloadResult(false, "SoundCloud auth token is required for WAV downloads.", null);
             }
 
-            string ytDlpPath = Path.Combine(AppContext.BaseDirectory, "Music", "yt-dlp.exe");
+            string ytDlpPath = Path.Combine(AppContext.BaseDirectory, "yt-dlp.exe");
             if (!File.Exists(ytDlpPath))
             {
-                return new DownloadResult(false, "yt-dlp.exe was not found in the Music folder.", null);
+                return new DownloadResult(false, "yt-dlp.exe was not found in the application folder.", null);
             }
 
             Directory.CreateDirectory(outputFolder);

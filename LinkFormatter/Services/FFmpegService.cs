@@ -24,8 +24,36 @@ namespace LinkFormatter.Services
 
         public bool IsFFmpegAvailable(string targetFolder)
         {
+            // Check the app folder first
             string ffmpegPath = GetFFmpegPath(targetFolder);
-            return File.Exists(ffmpegPath);
+            if (File.Exists(ffmpegPath))
+                return true;
+
+            // Check if ffmpeg is on the system PATH
+            return IsOnPath(FFMPEG_EXECUTABLE);
+        }
+
+        private static bool IsOnPath(string executable)
+        {
+            try
+            {
+                var startInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = executable,
+                    Arguments = "-version",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = System.Diagnostics.Process.Start(startInfo);
+                process?.WaitForExit(3000);
+                return process?.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public string GetFFmpegPath(string targetFolder)
