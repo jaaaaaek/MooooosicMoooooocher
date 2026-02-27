@@ -1,0 +1,30 @@
+<Window x:Class="ScDownloader.Views.ConfirmDialog"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="360"
+        Height="160"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="{StaticResource SurfaceBrush}">
+  <Border Padding="16">
+    <Grid RowDefinitions="Auto,Auto,*">
+      <TextBlock x:Name="TitleText"
+                 FontSize="16"
+                 FontWeight="SemiBold"
+                 Foreground="{StaticResource TextBrush}" />
+      <TextBlock x:Name="MessageText"
+                 Grid.Row="1"
+                 Margin="0,8,0,0"
+                 TextWrapping="Wrap"
+                 Foreground="{StaticResource TextBrush}" />
+      <StackPanel Grid.Row="2"
+                  Orientation="Horizontal"
+                  HorizontalAlignment="Right"
+                  Spacing="8"
+                  Margin="0,16,0,0">
+        <Button Content="No" Click="OnNoClicked" Background="{StaticResource BackgroundBrush}" />
+        <Button Content="Yes" Click="OnYesClicked" Background="{StaticResource ClaudeOrangeBrush}" Foreground="White" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

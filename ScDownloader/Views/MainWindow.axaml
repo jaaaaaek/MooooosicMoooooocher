@@ -1,0 +1,61 @@
+<Window x:Class="ScDownloader.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:ScDownloader.Views"
+        Width="1200"
+        Height="800"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        FontSize="{Binding ZoomedFontSize}"
+        Title="SoundCloud Downloader">
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+OemPlus" Command="{Binding ZoomInCommand}" />
+    <KeyBinding Gesture="Ctrl+Add" Command="{Binding ZoomInCommand}" />
+    <KeyBinding Gesture="Ctrl+OemMinus" Command="{Binding ZoomOutCommand}" />
+    <KeyBinding Gesture="Ctrl+Subtract" Command="{Binding ZoomOutCommand}" />
+    <KeyBinding Gesture="Ctrl+0" Command="{Binding ResetZoomCommand}" />
+  </Window.KeyBindings>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="260" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" Padding="16">
+        <Grid RowDefinitions="Auto,*">
+          <Border Background="{StaticResource SurfaceBrush}"
+                  CornerRadius="8"
+                  Padding="12">
+            <views:SettingsPanelView DataContext="{Binding SettingsPanel}" />
+          </Border>
+          <views:FilesListView Grid.Row="1"
+                               Margin="0,12,0,0"
+                               VerticalAlignment="Stretch"
+                               DataContext="{Binding FilesList}" />
+        </Grid>
+      </Border>
+
+      <Grid Grid.Column="1" Margin="16" RowDefinitions="Auto,2*,3*">
+        <views:UrlInputView Grid.Row="0" Margin="0,0,0,12"
+                            IsVisible="{Binding !IsConsoleExpanded}"
+                            DataContext="{Binding UrlInput}" />
+        <views:DownloadQueueView Grid.Row="1"
+                                 Margin="0,0,0,12"
+                                 IsVisible="{Binding !IsConsoleExpanded}"
+                                 DataContext="{Binding DownloadQueue}" />
+        <views:ProgressConsoleView x:Name="ConsoleView"
+                                   Grid.Row="2"
+                                   IsVisible="{Binding !UrlInput.ShowErrorDetails}"
+                                   DataContext="{Binding ProgressConsole}" />
+      </Grid>
+
+    <Border Grid.ColumnSpan="2" Background="#AA000000"
+            IsVisible="{Binding IsWelcomeVisible}">
+      <Grid HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+        <views:WelcomeView DataContext="{Binding Welcome}" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

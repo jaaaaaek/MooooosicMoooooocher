@@ -1,0 +1,49 @@
+<UserControl x:Class="ScDownloader.Views.FilesListView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12" VerticalAlignment="Stretch">
+    <Grid RowDefinitions="Auto,*">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Downloaded Files"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextBrush}" />
+        <Button Grid.Column="1"
+                Margin="6,0,0,0"
+                ToolTip.Tip="Open output folder"
+                Padding="6,2"
+                MinHeight="24"
+                Command="{Binding OpenOutputFolderCommand}"
+                Background="{StaticResource BackgroundBrush}">
+          <TextBlock FontFamily="Segoe MDL2 Assets"
+                     Text="&#xED25;"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Center" />
+        </Button>
+      </Grid>
+
+      <Border Grid.Row="1"
+              Margin="0,8,0,0"
+              Background="{StaticResource BackgroundBrush}"
+              BorderBrush="{StaticResource TextBrush}"
+              BorderThickness="0.5"
+              CornerRadius="4"
+              Padding="6"
+              VerticalAlignment="Stretch">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden">
+          <TextBox Text="{Binding FilesText}"
+                   Foreground="{StaticResource TextBrush}"
+                   FontSize="12"
+                   FontFamily="Consolas"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   IsReadOnly="True"
+                   AcceptsReturn="True"
+                   TextWrapping="NoWrap"
+                   Padding="0" />
+        </ScrollViewer>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 18
-VisualStudioVersion = 18.4.11513.90 insiders
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkFormatter", "LinkFormatter\LinkFormatter.csproj", "{BF58AE24-102D-40DC-92F0-5D4406169039}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScDownloader", "ScDownloader\ScDownloader.csproj", "{BF58AE24-102D-40DC-92F0-5D4406169039}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,53 @@
+<UserControl x:Class="ScDownloader.Views.WelcomeView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Border Background="{StaticResource SurfaceBrush}" CornerRadius="12" Padding="20" Width="520">
+    <StackPanel Spacing="12">
+      <TextBlock Text="hellooooooooOOOOOOOOOOOOOOOOOOOOOOO"
+                 FontSize="20"
+                 FontWeight="Bold"
+                 Foreground="{StaticResource TextBrush}" />
+
+      <TextBlock Text="Let's get you setup"
+                 Foreground="{StaticResource TextBrush}"
+                 TextWrapping="Wrap" />
+
+      <StackPanel Spacing="6">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Output Folder (required)" Foreground="{StaticResource TextBrush}" />
+          <Button Grid.Column="1"
+                  Click="OnBrowseClick"
+                  Background="{StaticResource BackgroundBrush}">
+            <TextBlock Text="Browse"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" />
+          </Button>
+        </Grid>
+        <TextBox Text="{Binding OutputFolder}"
+                 IsReadOnly="True"
+                 Watermark="Choose output folder"
+                 Background="{StaticResource BackgroundBrush}" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="SoundCloud Token (optional)" Foreground="{StaticResource TextBrush}" />
+        <TextBox Text="{Binding SoundCloudToken}"
+                 Watermark="Only required for WAV"
+                 Background="{StaticResource BackgroundBrush}" />
+      </StackPanel>
+
+      <TextBlock Text="{Binding ErrorMessage}"
+                 Foreground="{StaticResource ErrorBrush}"
+                 IsVisible="{Binding HasError}"
+                 TextWrapping="Wrap"
+                 Margin="0,0,0,4" />
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="Continue"
+                Command="{Binding ContinueCommand}"
+                Background="{StaticResource ClaudeOrangeBrush}"
+                Foreground="White" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>
