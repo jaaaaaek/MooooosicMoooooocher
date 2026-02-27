@@ -15,16 +15,19 @@ namespace ScDownloader.Views
         private double _currentSpeed; // bytes per second
 
         private string _targetFolder = "";
+        private string _fileName = "dependency";
 
         public DownloadDialog()
         {
             InitializeComponent();
         }
 
-        public void SetTargetFolder(string folder)
+        public void Configure(string windowTitle, string fileName, string targetFolder)
         {
-            _targetFolder = folder;
-            DestinationText.Text = folder;
+            Title = windowTitle;
+            _fileName = fileName;
+            _targetFolder = targetFolder;
+            DestinationText.Text = targetFolder;
         }
 
 
@@ -34,12 +37,12 @@ namespace ScDownloader.Views
             {
                 StatusText.Text = progress.Phase switch
                 {
-                    DownloadPhase.Checking => "Saving: ffmpeg.exe (checking...)",
+                    DownloadPhase.Checking => $"Saving: {_fileName} (checking...)",
                     DownloadPhase.Downloading => progress.TotalBytes.HasValue
-                        ? $"Saving: ffmpeg.exe ({FormatBytes(progress.BytesDownloaded)} of {FormatBytes(progress.TotalBytes.Value)})"
-                        : $"Saving: ffmpeg.exe ({FormatBytes(progress.BytesDownloaded)})",
-                    DownloadPhase.Extracting => "Saving: ffmpeg.exe (extracting...)",
-                    DownloadPhase.Complete => "Saving: ffmpeg.exe (complete!)",
+                        ? $"Saving: {_fileName} ({FormatBytes(progress.BytesDownloaded)} of {FormatBytes(progress.TotalBytes.Value)})"
+                        : $"Saving: {_fileName} ({FormatBytes(progress.BytesDownloaded)})",
+                    DownloadPhase.Extracting => $"Saving: {_fileName} (extracting...)",
+                    DownloadPhase.Complete => $"Saving: {_fileName} (complete!)",
                     DownloadPhase.Failed => "Download failed.",
                     _ => progress.Message
                 };

@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Downloaded dependencies (auto-downloaded on first run)
+yt-dlp.exe
+ffmpeg.exe
+ffmpeg/

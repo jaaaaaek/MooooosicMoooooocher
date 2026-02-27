@@ -6,6 +6,7 @@ namespace ScDownloader.ViewModels
     public class WelcomeViewModel : ViewModelBase
     {
         private readonly IFFmpegService _ffmpegService;
+        private readonly IYtDlpService _ytDlpService;
         private string _outputFolder = string.Empty;
         private string _soundCloudToken = string.Empty;
         private bool _mp3Only;
@@ -16,9 +17,10 @@ namespace ScDownloader.ViewModels
         private string _errorMessage = string.Empty;
         private bool _isFfmpegRequired;
 
-        public WelcomeViewModel(IFFmpegService ffmpegService)
+        public WelcomeViewModel(IFFmpegService ffmpegService, IYtDlpService ytDlpService)
         {
             _ffmpegService = ffmpegService ?? throw new ArgumentNullException(nameof(ffmpegService));
+            _ytDlpService = ytDlpService ?? throw new ArgumentNullException(nameof(ytDlpService));
             ContinueCommand = new RelayCommand(OnContinue, () => CanContinue);
         }
 
@@ -32,10 +34,10 @@ namespace ScDownloader.ViewModels
 
         /// <summary>
         /// Callback to show the download progress dialog. Set by the host (MainWindow).
-        /// Receives the FFmpeg service, target folder, and cancellation token.
+        /// Parameters: windowTitle, fileName, targetFolder, downloadFunc, cancellationToken.
         /// Returns true if download succeeded, false otherwise.
         /// </summary>
-        public Func<IFFmpegService, string, CancellationToken, Task<bool>>? ShowDownloadDialogAsync { get; set; }
+        public Func<string, string, string, Func<string, IProgress<DownloadProgress>?, CancellationToken, Task<bool>>, CancellationToken, Task<bool>>? ShowDownloadDialogAsync { get; set; }
 
         public RelayCommand ContinueCommand { get; }
 
@@ -138,25 +140,68 @@ namespace ScDownloader.ViewModels
             ProgressPercent = 0;
             StatusMessage = string.Empty;
 
-            IsFfmpegRequired = !_ffmpegService.IsFFmpegAvailable(musicFolder);
-            if (!IsFfmpegRequired)
+            // Check FFmpeg
+            if (!_ffmpegService.IsFFmpegAvailable(musicFolder))
             {
-                IsBusy = false;
-                return true;
+                IsFfmpegRequired = true;
+                bool success = await DownloadDependencyAsync(
+                    "FFmpeg Required",
+                    "FFmpeg is required for audio conversion and is not installed. Would you like to download it now?",
+                    "Downloading FFmpeg",
+                    "ffmpeg",
+                    musicFolder,
+                    (folder, progress, ct) => _ffmpegService.EnsureFFmpegAvailableAsync(folder, progress, ct),
+                    "FFmpeg is required to continue. Restart the app to try again.",
+                    cancellationToken);
+
+                if (!success)
+                {
+                    IsBusy = false;
+                    return false;
+                }
             }
 
-            // Ask the user before downloading ffmpeg
+            // Check yt-dlp
+            if (!_ytDlpService.IsYtDlpAvailable(musicFolder))
+            {
+                bool success = await DownloadDependencyAsync(
+                    "yt-dlp Required",
+                    "yt-dlp is required for downloading audio and is not installed. Would you like to download it now?",
+                    "Downloading yt-dlp",
+                    "yt-dlp",
+                    musicFolder,
+                    (folder, progress, ct) => _ytDlpService.EnsureYtDlpAvailableAsync(folder, progress, ct),
+                    "yt-dlp is required to continue. Restart the app to try again.",
+                    cancellationToken);
+
+                if (!success)
+                {
+                    IsBusy = false;
+                    return false;
+                }
+            }
+
+            IsBusy = false;
+            return true;
+        }
+
+        private async Task<bool> DownloadDependencyAsync(
+            string confirmTitle,
+            string confirmMessage,
+            string dialogTitle,
+            string fileName,
+            string targetFolder,
+            Func<string, IProgress<DownloadProgress>?, CancellationToken, Task<bool>> downloadFunc,
+            string failureMessage,
+            CancellationToken cancellationToken)
+        {
             if (ConfirmAsync != null)
             {
-                bool confirmed = await ConfirmAsync(
-                    "FFmpeg Required",
-                    "FFmpeg is required for audio conversion and is not installed. Would you like to download it now?");
-
+                bool confirmed = await ConfirmAsync(confirmTitle, confirmMessage);
                 if (!confirmed)
                 {
                     HasError = true;
-                    ErrorMessage = "FFmpeg is required to continue. Restart the app to try again.";
-                    IsBusy = false;
+                    ErrorMessage = failureMessage;
                     return false;
                 }
             }
@@ -164,20 +209,19 @@ namespace ScDownloader.ViewModels
             bool success;
             if (ShowDownloadDialogAsync != null)
             {
-                success = await ShowDownloadDialogAsync(_ffmpegService, musicFolder, cancellationToken);
+                success = await ShowDownloadDialogAsync(dialogTitle, fileName, targetFolder, downloadFunc, cancellationToken);
             }
             else
             {
-                success = await _ffmpegService.EnsureFFmpegAvailableAsync(musicFolder, cancellationToken: cancellationToken);
+                success = await downloadFunc(targetFolder, null, cancellationToken);
             }
 
             if (!success)
             {
                 HasError = true;
-                ErrorMessage = "FFmpeg download failed. Restart the app to try again.";
+                ErrorMessage = failureMessage;
             }
 
-            IsBusy = false;
             return success;
         }
 

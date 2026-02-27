@@ -23,13 +23,6 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="yt-dlp.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-    <!-- ffmpeg.exe will be downloaded automatically on first run -->
-  </ItemGroup>
+  <!-- ffmpeg and yt-dlp are downloaded automatically on first run -->
 
 </Project>

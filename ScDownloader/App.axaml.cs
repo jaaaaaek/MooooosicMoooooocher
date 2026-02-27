@@ -21,6 +21,7 @@ namespace ScDownloader
                 var settingsService = new SettingsService();
                 var urlValidator = new UrlValidator();
                 var ffmpegService = new FFmpegService();
+                var ytDlpService = new YtDlpService();
                 var downloadService = new DownloadService();
                 var fileService = new FileService();
 
@@ -28,6 +29,7 @@ namespace ScDownloader
                     settingsService,
                     urlValidator,
                     ffmpegService,
+                    ytDlpService,
                     downloadService,
                     fileService);
 

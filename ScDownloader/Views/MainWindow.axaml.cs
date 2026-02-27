@@ -19,7 +19,7 @@ namespace ScDownloader.Views
                     vm.PropertyChanged += OnViewModelPropertyChanged;
                     UpdateConsoleLayout(vm.IsConsoleExpanded);
                     vm.Welcome.ConfirmAsync = ShowConfirmDialogAsync;
-                    vm.Welcome.ShowDownloadDialogAsync = ShowDownloadDialogAsync;
+                    vm.Welcome.ShowDownloadDialogAsync = ShowDownloadDialogGenericAsync;
                 }
             };
         }
@@ -56,11 +56,16 @@ namespace ScDownloader.Views
             return result == true;
         }
 
-        private async Task<bool> ShowDownloadDialogAsync(IFFmpegService ffmpegService, string targetFolder, CancellationToken cancellationToken)
+        private async Task<bool> ShowDownloadDialogGenericAsync(
+            string windowTitle,
+            string fileName,
+            string targetFolder,
+            Func<string, IProgress<DownloadProgress>?, CancellationToken, Task<bool>> downloadFunc,
+            CancellationToken cancellationToken)
         {
             using var dialogCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var dialog = new DownloadDialog();
-            dialog.SetTargetFolder(targetFolder);
+            dialog.Configure(windowTitle, fileName, targetFolder);
 
             // Cancel the download if the user closes the dialog
             dialog.Closed += (_, _) => dialogCts.Cancel();
@@ -76,7 +81,7 @@ namespace ScDownloader.Views
             {
                 try
                 {
-                    success = await ffmpegService.EnsureFFmpegAvailableAsync(targetFolder, progress, dialogCts.Token);
+                    success = await downloadFunc(targetFolder, progress, dialogCts.Token);
                     dialog.OnDownloadComplete(success);
                 }
                 catch (OperationCanceledException)

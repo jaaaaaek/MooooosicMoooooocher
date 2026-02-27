@@ -34,6 +34,7 @@ namespace ScDownloader.ViewModels
             ISettingsService settingsService,
             IUrlValidator urlValidator,
             IFFmpegService ffmpegService,
+            IYtDlpService ytDlpService,
             IDownloadService downloadService,
             IFileService fileService)
         {
@@ -48,7 +49,9 @@ namespace ScDownloader.ViewModels
             DownloadQueue = new DownloadQueueViewModel();
             ProgressConsole = new ProgressConsoleViewModel();
             FilesList = new FilesListViewModel(_fileService);
-            Welcome = new WelcomeViewModel(ffmpegService ?? throw new ArgumentNullException(nameof(ffmpegService)));
+            Welcome = new WelcomeViewModel(
+                ffmpegService ?? throw new ArgumentNullException(nameof(ffmpegService)),
+                ytDlpService ?? throw new ArgumentNullException(nameof(ytDlpService)));
 
             StartDownloadsCommand = new AsyncRelayCommand(ProcessQueueAsync, () => !_isProcessingQueue);
             StopAllCommand = new RelayCommand(StopAllDownloads, () => _isProcessingQueue);
