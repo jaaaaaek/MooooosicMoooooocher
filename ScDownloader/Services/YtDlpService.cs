@@ -1,8 +1,11 @@
+using System.Security.Cryptography;
+
 namespace ScDownloader.Services
 {
     public class YtDlpService : IYtDlpService
     {
         private const string YTDLP_DOWNLOAD_URL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+        private const string YTDLP_CHECKSUM_URL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/SHA2-256SUMS";
         private const string YTDLP_EXECUTABLE = "yt-dlp.exe";
 
         private readonly HttpClient _httpClient;
@@ -118,16 +121,7 @@ namespace ScDownloader.Services
                     }
                 }
 
-                if (File.Exists(destinationPath))
-                {
-                    progress?.Report(new DownloadProgress
-                    {
-                        Phase = DownloadPhase.Complete,
-                        Message = "yt-dlp downloaded and ready!"
-                    });
-                    return true;
-                }
-                else
+                if (!File.Exists(destinationPath))
                 {
                     progress?.Report(new DownloadProgress
                     {
@@ -136,6 +130,31 @@ namespace ScDownloader.Services
                     });
                     return false;
                 }
+
+                // Verify checksum
+                progress?.Report(new DownloadProgress
+                {
+                    Phase = DownloadPhase.Verifying,
+                    Message = "Verifying yt-dlp checksum..."
+                });
+
+                if (!await VerifyChecksumAsync(destinationPath, cancellationToken))
+                {
+                    try { File.Delete(destinationPath); } catch { }
+                    progress?.Report(new DownloadProgress
+                    {
+                        Phase = DownloadPhase.Failed,
+                        Message = "yt-dlp checksum verification failed - file may be corrupted or tampered with"
+                    });
+                    return false;
+                }
+
+                progress?.Report(new DownloadProgress
+                {
+                    Phase = DownloadPhase.Complete,
+                    Message = "yt-dlp downloaded and verified!"
+                });
+                return true;
             }
             catch (Exception ex)
             {
@@ -146,6 +165,48 @@ namespace ScDownloader.Services
                 });
                 return false;
             }
+        }
+
+        private async Task<bool> VerifyChecksumAsync(string filePath, CancellationToken cancellationToken)
+        {
+            try
+            {
+                string expectedHash = await FetchExpectedChecksumAsync(cancellationToken);
+                if (string.IsNullOrEmpty(expectedHash))
+                    return false;
+
+                string actualHash = await ComputeSHA256Async(filePath, cancellationToken);
+                return string.Equals(expectedHash, actualHash, StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<string> FetchExpectedChecksumAsync(CancellationToken cancellationToken)
+        {
+            string checksumContent = await _httpClient.GetStringAsync(YTDLP_CHECKSUM_URL, cancellationToken);
+            foreach (string line in checksumContent.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                // Format: "<hash>  <filename>"
+                string trimmed = line.Trim();
+                if (trimmed.EndsWith(YTDLP_EXECUTABLE, StringComparison.OrdinalIgnoreCase))
+                {
+                    int separatorIndex = trimmed.IndexOf(' ');
+                    if (separatorIndex > 0)
+                        return trimmed[..separatorIndex];
+                }
+            }
+            return string.Empty;
+        }
+
+        private static async Task<string> ComputeSHA256Async(string filePath, CancellationToken cancellationToken)
+        {
+            using var sha256 = SHA256.Create();
+            using var stream = File.OpenRead(filePath);
+            byte[] hash = await sha256.ComputeHashAsync(stream, cancellationToken);
+            return Convert.ToHexString(hash);
         }
 
         private static string FormatBytes(long bytes)

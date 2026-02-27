@@ -141,7 +141,12 @@ namespace ScDownloader.ViewModels
             StatusMessage = string.Empty;
 
             // Check FFmpeg
-            if (!_ffmpegService.IsFFmpegAvailable(musicFolder))
+#if DEBUG
+            bool ffmpegMissing = true;
+#else
+            bool ffmpegMissing = !_ffmpegService.IsFFmpegAvailable(musicFolder);
+#endif
+            if (ffmpegMissing)
             {
                 IsFfmpegRequired = true;
                 bool success = await DownloadDependencyAsync(
@@ -162,7 +167,12 @@ namespace ScDownloader.ViewModels
             }
 
             // Check yt-dlp
-            if (!_ytDlpService.IsYtDlpAvailable(musicFolder))
+#if DEBUG
+            bool ytDlpMissing = true;
+#else
+            bool ytDlpMissing = !_ytDlpService.IsYtDlpAvailable(musicFolder);
+#endif
+            if (ytDlpMissing)
             {
                 bool success = await DownloadDependencyAsync(
                     "yt-dlp Required",

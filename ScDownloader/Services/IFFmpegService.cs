@@ -54,6 +54,7 @@ namespace ScDownloader.Services
     {
         Checking,
         Downloading,
+        Verifying,
         Extracting,
         Complete,
         Failed

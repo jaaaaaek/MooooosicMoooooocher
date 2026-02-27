@@ -136,6 +136,10 @@ namespace ScDownloader.ViewModels
         {
             _settings = await _settingsService.LoadAsync(cancellationToken);
 
+#if DEBUG
+            _settings.IsFirstRun = true;
+#endif
+
             _suppressSettingsSave = true;
             SettingsPanel.ApplySettings(_settings);
             _suppressSettingsSave = false;
