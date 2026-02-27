@@ -1,4 +1,5 @@
      using System.IO.Compression;
+     using System.Security.Cryptography;
 
 namespace ScDownloader.Services
 {
@@ -10,6 +11,7 @@ namespace ScDownloader.Services
         // Using gyan.dev's essentials build - smaller and optimized for common use cases
         // Alternative: https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
         private const string FFMPEG_DOWNLOAD_URL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+        private const string FFMPEG_CHECKSUM_URL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip.sha256";
         private const string FFMPEG_EXECUTABLE = "ffmpeg.exe";
 
         private readonly HttpClient _httpClient;
@@ -130,6 +132,23 @@ namespace ScDownloader.Services
                         }
                     }
 
+                    // Verify checksum
+                    progress?.Report(new DownloadProgress
+                    {
+                        Phase = DownloadPhase.Verifying,
+                        Message = "Verifying FFmpeg checksum..."
+                    });
+
+                    if (!await VerifyChecksumAsync(tempZipPath, cancellationToken))
+                    {
+                        progress?.Report(new DownloadProgress
+                        {
+                            Phase = DownloadPhase.Failed,
+                            Message = "FFmpeg checksum verification failed - file may be corrupted or tampered with"
+                        });
+                        return false;
+                    }
+
                     // Extract FFmpeg
                     progress?.Report(new DownloadProgress
                     {
@@ -145,7 +164,7 @@ namespace ScDownloader.Services
                         progress?.Report(new DownloadProgress
                         {
                             Phase = DownloadPhase.Complete,
-                            Message = "FFmpeg downloaded and ready!"
+                            Message = "FFmpeg downloaded and verified!"
                         });
                         return true;
                     }
@@ -199,6 +218,38 @@ namespace ScDownloader.Services
             }
 
             await Task.CompletedTask; // For async consistency
+        }
+
+        private async Task<bool> VerifyChecksumAsync(string filePath, CancellationToken cancellationToken)
+        {
+            try
+            {
+                string expectedHash = await FetchExpectedChecksumAsync(cancellationToken);
+                if (string.IsNullOrEmpty(expectedHash))
+                    return false;
+
+                string actualHash = await ComputeSHA256Async(filePath, cancellationToken);
+                return string.Equals(expectedHash, actualHash, StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<string> FetchExpectedChecksumAsync(CancellationToken cancellationToken)
+        {
+            // gyan.dev .sha256 file contains just the hash string
+            string checksumContent = await _httpClient.GetStringAsync(FFMPEG_CHECKSUM_URL, cancellationToken);
+            return checksumContent.Trim().Split(' ')[0];
+        }
+
+        private static async Task<string> ComputeSHA256Async(string filePath, CancellationToken cancellationToken)
+        {
+            using var sha256 = SHA256.Create();
+            using var stream = File.OpenRead(filePath);
+            byte[] hash = await sha256.ComputeHashAsync(stream, cancellationToken);
+            return Convert.ToHexString(hash);
         }
 
         private static string FormatBytes(long bytes)
