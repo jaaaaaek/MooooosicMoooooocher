@@ -23,12 +23,17 @@ namespace ScDownloader.Services
                 return;
             }
 
-            var startInfo = new ProcessStartInfo("explorer.exe", $"/select,\"{filePath}\"")
+            if (PlatformHelper.IsMacOS)
             {
-                UseShellExecute = true
-            };
-
-            Process.Start(startInfo);
+                Process.Start("open", $"-R \"{filePath}\"");
+            }
+            else
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{filePath}\"")
+                {
+                    UseShellExecute = true
+                });
+            }
         }
 
         public void OpenFolder(string folderPath)
@@ -38,7 +43,14 @@ namespace ScDownloader.Services
                 return;
             }
 
-            Process.Start(new ProcessStartInfo(folderPath) { UseShellExecute = true });
+            if (PlatformHelper.IsMacOS)
+            {
+                Process.Start("open", $"\"{folderPath}\"");
+            }
+            else
+            {
+                Process.Start(new ProcessStartInfo(folderPath) { UseShellExecute = true });
+            }
         }
     }
 }

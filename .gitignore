@@ -364,5 +364,8 @@ FodyWeavers.xsd
 
 # Downloaded dependencies (auto-downloaded on first run)
 yt-dlp.exe
+yt-dlp
+yt-dlp_macos
 ffmpeg.exe
+ffmpeg
 ffmpeg/

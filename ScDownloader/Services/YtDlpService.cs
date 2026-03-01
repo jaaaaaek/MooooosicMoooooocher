@@ -4,9 +4,20 @@ namespace ScDownloader.Services
 {
     public class YtDlpService : IYtDlpService
     {
-        private const string YTDLP_DOWNLOAD_URL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+        private static string YtDlpDownloadUrl => PlatformHelper.IsMacOS
+            ? "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos"
+            : "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+
         private const string YTDLP_CHECKSUM_URL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/SHA2-256SUMS";
-        private const string YTDLP_EXECUTABLE = "yt-dlp.exe";
+
+        public static string YtDlpExecutable => PlatformHelper.IsMacOS
+            ? "yt-dlp"
+            : "yt-dlp.exe";
+
+        // The filename listed in the checksum file (differs from the local save name on macOS)
+        private static string YtDlpChecksumFileName => PlatformHelper.IsMacOS
+            ? "yt-dlp_macos"
+            : "yt-dlp.exe";
 
         private readonly HttpClient _httpClient;
 
@@ -24,7 +35,7 @@ namespace ScDownloader.Services
             if (File.Exists(ytDlpPath))
                 return true;
 
-            return IsOnPath(YTDLP_EXECUTABLE);
+            return IsOnPath(YtDlpExecutable);
         }
 
         private static bool IsOnPath(string executable)
@@ -52,7 +63,7 @@ namespace ScDownloader.Services
 
         public string GetYtDlpPath(string targetFolder)
         {
-            return Path.Combine(targetFolder, YTDLP_EXECUTABLE);
+            return Path.Combine(targetFolder, YtDlpExecutable);
         }
 
         public async Task<bool> EnsureYtDlpAvailableAsync(
@@ -88,7 +99,7 @@ namespace ScDownloader.Services
 
                 string destinationPath = GetYtDlpPath(targetFolder);
 
-                using (var response = await _httpClient.GetAsync(YTDLP_DOWNLOAD_URL,
+                using (var response = await _httpClient.GetAsync(YtDlpDownloadUrl,
                     HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                 {
                     response.EnsureSuccessStatusCode();
@@ -149,6 +160,8 @@ namespace ScDownloader.Services
                     return false;
                 }
 
+                PlatformHelper.SetExecutablePermission(destinationPath);
+
                 progress?.Report(new DownloadProgress
                 {
                     Phase = DownloadPhase.Complete,
@@ -191,7 +204,7 @@ namespace ScDownloader.Services
             {
                 // Format: "<hash>  <filename>"
                 string trimmed = line.Trim();
-                if (trimmed.EndsWith(YTDLP_EXECUTABLE, StringComparison.OrdinalIgnoreCase))
+                if (trimmed.EndsWith(YtDlpChecksumFileName, StringComparison.OrdinalIgnoreCase))
                 {
                     int separatorIndex = trimmed.IndexOf(' ');
                     if (separatorIndex > 0)

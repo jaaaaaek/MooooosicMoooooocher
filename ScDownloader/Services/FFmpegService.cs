@@ -8,11 +8,17 @@ namespace ScDownloader.Services
     /// </summary>
     public class FFmpegService : IFFmpegService
     {
-        // Using gyan.dev's essentials build - smaller and optimized for common use cases
-        // Alternative: https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
-        private const string FFMPEG_DOWNLOAD_URL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
-        private const string FFMPEG_CHECKSUM_URL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip.sha256";
-        private const string FFMPEG_EXECUTABLE = "ffmpeg.exe";
+        private static string FFmpegDownloadUrl => PlatformHelper.IsMacOS
+            ? "https://evermeet.cx/ffmpeg/getrelease/zip"
+            : "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+
+        private static string? FFmpegChecksumUrl => PlatformHelper.IsMacOS
+            ? null // evermeet.cx doesn't provide a separate checksum file
+            : "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip.sha256";
+
+        private static string FFmpegExecutable => PlatformHelper.IsMacOS
+            ? "ffmpeg"
+            : "ffmpeg.exe";
 
         private readonly HttpClient _httpClient;
 
@@ -32,7 +38,7 @@ namespace ScDownloader.Services
                 return true;
 
             // Check if ffmpeg is on the system PATH
-            return IsOnPath(FFMPEG_EXECUTABLE);
+            return IsOnPath(FFmpegExecutable);
         }
 
         private static bool IsOnPath(string executable)
@@ -60,7 +66,7 @@ namespace ScDownloader.Services
 
         public string GetFFmpegPath(string targetFolder)
         {
-            return Path.Combine(targetFolder, FFMPEG_EXECUTABLE);
+            return Path.Combine(targetFolder, FFmpegExecutable);
         }
 
         public async Task<bool> EnsureFFmpegAvailableAsync(
@@ -102,7 +108,7 @@ namespace ScDownloader.Services
                 try
                 {
                     // Download with progress
-                    using (var response = await _httpClient.GetAsync(FFMPEG_DOWNLOAD_URL, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+                    using (var response = await _httpClient.GetAsync(FFmpegDownloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                     {
                         response.EnsureSuccessStatusCode();
 
@@ -139,7 +145,7 @@ namespace ScDownloader.Services
                         Message = "Verifying FFmpeg checksum..."
                     });
 
-                    if (!await VerifyChecksumAsync(tempZipPath, cancellationToken))
+                    if (FFmpegChecksumUrl != null && !await VerifyChecksumAsync(tempZipPath, cancellationToken))
                     {
                         progress?.Report(new DownloadProgress
                         {
@@ -202,22 +208,24 @@ namespace ScDownloader.Services
         {
             using (var archive = ZipFile.OpenRead(zipPath))
             {
-                // Find ffmpeg.exe in the archive (it's usually in a bin/ subfolder)
+                // Find the ffmpeg binary in the archive (may be in a bin/ subfolder)
+                string searchName = PlatformHelper.IsMacOS ? "/ffmpeg" : "ffmpeg.exe";
                 var ffmpegEntry = archive.Entries.FirstOrDefault(e =>
-                    e.FullName.EndsWith("ffmpeg.exe", StringComparison.OrdinalIgnoreCase));
+                    e.FullName.EndsWith(searchName, StringComparison.OrdinalIgnoreCase)
+                    || e.Name.Equals(FFmpegExecutable, StringComparison.OrdinalIgnoreCase));
 
                 if (ffmpegEntry == null)
                 {
-                    throw new FileNotFoundException("ffmpeg.exe not found in downloaded archive");
+                    throw new FileNotFoundException($"{FFmpegExecutable} not found in downloaded archive");
                 }
 
                 string destinationPath = GetFFmpegPath(targetFolder);
-
-                // Extract to target location
                 ffmpegEntry.ExtractToFile(destinationPath, overwrite: true);
+
+                PlatformHelper.SetExecutablePermission(destinationPath);
             }
 
-            await Task.CompletedTask; // For async consistency
+            await Task.CompletedTask;
         }
 
         private async Task<bool> VerifyChecksumAsync(string filePath, CancellationToken cancellationToken)
@@ -239,8 +247,11 @@ namespace ScDownloader.Services
 
         private async Task<string> FetchExpectedChecksumAsync(CancellationToken cancellationToken)
         {
+            if (FFmpegChecksumUrl == null)
+                return string.Empty;
+
             // gyan.dev .sha256 file contains just the hash string
-            string checksumContent = await _httpClient.GetStringAsync(FFMPEG_CHECKSUM_URL, cancellationToken);
+            string checksumContent = await _httpClient.GetStringAsync(FFmpegChecksumUrl, cancellationToken);
             return checksumContent.Trim().Split(' ')[0];
         }
 
