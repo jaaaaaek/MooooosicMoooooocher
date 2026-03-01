@@ -9,17 +9,22 @@
                    FontWeight="SemiBold"
                    Foreground="{StaticResource TextBrush}"
                    Margin="0,0,8,0" />
-        <Button Command="{Binding ToggleExpandCommand}"
+        <Button Content="Expand"
+                Command="{Binding ToggleExpandCommand}"
                 FontSize="11"
                 Padding="4,1"
                 VerticalAlignment="Center"
                 Background="Transparent"
-                Foreground="{StaticResource ClaudeOrangeBrush}">
-          <Panel>
-            <TextBlock Text="Expand" IsVisible="{Binding !IsExpanded}" />
-            <TextBlock Text="Collapse" IsVisible="{Binding IsExpanded}" />
-          </Panel>
-        </Button>
+                Foreground="{StaticResource ClaudeOrangeBrush}"
+                IsVisible="{Binding !IsExpanded}" />
+        <Button Content="Collapse"
+                Command="{Binding ToggleExpandCommand}"
+                FontSize="11"
+                Padding="4,1"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                Foreground="{StaticResource ClaudeOrangeBrush}"
+                IsVisible="{Binding IsExpanded}" />
       </WrapPanel>
       <ScrollViewer Background="{StaticResource BackgroundBrush}"
                     HorizontalScrollBarVisibility="Hidden"
