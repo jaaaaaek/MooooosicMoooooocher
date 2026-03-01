@@ -156,7 +156,7 @@ namespace ScDownloader.ViewModels
                     "ffmpeg",
                     musicFolder,
                     (folder, progress, ct) => _ffmpegService.EnsureFFmpegAvailableAsync(folder, progress, ct),
-                    "FFmpeg is required to continue. Restart the app to try again.",
+                    "FFmpeg is required to continue.\nRestart the app to try again.",
                     cancellationToken);
 
                 if (!success)

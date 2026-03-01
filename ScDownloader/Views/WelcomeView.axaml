@@ -36,18 +36,26 @@
                  Background="{StaticResource BackgroundBrush}" />
       </StackPanel>
 
-      <TextBlock Text="{Binding ErrorMessage}"
-                 Foreground="{StaticResource ErrorBrush}"
-                 IsVisible="{Binding HasError}"
-                 TextWrapping="Wrap"
-                 Margin="0,0,0,4" />
-
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-        <Button Content="Continue"
+      <Grid ColumnDefinitions="Auto,Auto,*">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="{StaticResource ErrorBrush}"
+                   IsVisible="{Binding HasError}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center" />
+        <Image Grid.Column="1"
+               Source="avares://ScDownloader/Assets/yoooooooooooo.png"
+               Height="120"
+               Margin="12,0,0,0"
+               IsVisible="{Binding HasError}" />
+        <Button Grid.Column="2"
+                Content="Continue"
                 Command="{Binding ContinueCommand}"
                 Background="{StaticResource ClaudeOrangeBrush}"
-                Foreground="White" />
-      </StackPanel>
+                Foreground="White"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom" />
+      </Grid>
     </StackPanel>
   </Border>
 </UserControl>
