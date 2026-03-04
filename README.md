@@ -1,13 +1,12 @@
 # MooooosicMoooooocher
 
-A desktop app for downloading music. Paste URLs, pick a format, and hit download.
+For all your music downloading needs. Supports .wav and .mp3 files currently
 
 ## Features
 
-- Download audio as **MP3** or **WAV**
-- Batch download from a queue of URLs
-- Skips previously downloaded tracks
-- Auto-downloads **yt-dlp** and **FFmpeg** on first run
+- Batch download from a queue of URLs. 
+- Skips previously downloaded tracks within the same directory. 
+- Relies on yt-dlp and FFmpeg. Downloads them on first run. 
 - Cross-platform (Windows & macOS)
 
 ## Getting Started
