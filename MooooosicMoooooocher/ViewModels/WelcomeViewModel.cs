@@ -155,7 +155,11 @@ namespace MooooosicMoooooocher.ViewModels
                     "Downloading FFmpeg",
                     "ffmpeg",
                     musicFolder,
+#if DEBUG
+                    SimulateDownloadAsync,
+#else
                     (folder, progress, ct) => _ffmpegService.EnsureFFmpegAvailableAsync(folder, progress, ct),
+#endif
                     "FFmpeg is required to continue.\nRestart the app to try again.",
                     cancellationToken);
 
@@ -180,7 +184,11 @@ namespace MooooosicMoooooocher.ViewModels
                     "Downloading yt-dlp",
                     "yt-dlp",
                     musicFolder,
+#if DEBUG
+                    SimulateDownloadAsync,
+#else
                     (folder, progress, ct) => _ytDlpService.EnsureYtDlpAvailableAsync(folder, progress, ct),
+#endif
                     "yt-dlp is required to continue. Restart the app to try again.",
                     cancellationToken);
 
@@ -194,6 +202,57 @@ namespace MooooosicMoooooocher.ViewModels
             IsBusy = false;
             return true;
         }
+
+#if DEBUG
+        private static async Task<bool> SimulateDownloadAsync(string folder, IProgress<DownloadProgress>? progress, CancellationToken ct)
+        {
+            const long totalBytes = 50_000_000;
+            const int steps = 50;
+            long bytesPerStep = totalBytes / steps;
+
+            progress?.Report(new DownloadProgress
+            {
+                Phase = DownloadPhase.Checking,
+                Message = "Checking for updates..."
+            });
+            await Task.Delay(500, ct);
+
+            for (int i = 1; i <= steps; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                progress?.Report(new DownloadProgress
+                {
+                    Phase = DownloadPhase.Downloading,
+                    BytesDownloaded = bytesPerStep * i,
+                    TotalBytes = totalBytes,
+                    Percent = i * 100.0 / steps,
+                    Message = $"Downloading... {i * 100 / steps}%"
+                });
+                await Task.Delay(100, ct);
+            }
+
+            progress?.Report(new DownloadProgress
+            {
+                Phase = DownloadPhase.Extracting,
+                BytesDownloaded = totalBytes,
+                TotalBytes = totalBytes,
+                Percent = 100,
+                Message = "Extracting..."
+            });
+            await Task.Delay(1000, ct);
+
+            progress?.Report(new DownloadProgress
+            {
+                Phase = DownloadPhase.Complete,
+                BytesDownloaded = totalBytes,
+                TotalBytes = totalBytes,
+                Percent = 100,
+                Message = "Complete!"
+            });
+
+            return true;
+        }
+#endif
 
         private async Task<bool> DownloadDependencyAsync(
             string confirmTitle,

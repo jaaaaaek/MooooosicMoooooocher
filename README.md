@@ -1,12 +1,12 @@
 # MooooosicMoooooocher
 
-A desktop app for downloading music. Paste URLs, pick a format, and hit download.
+An Avalonia desktop app for downloading lots of music! 
 
 ## Features
 
 - Download audio as **MP3** or **WAV**
-- Batch download from a queue of URLs
-- Skips previously downloaded tracks
+- Batch download from a queue of pasted URLs
+- Remembers and skips previously downloaded tracks per chosen directory
 - Auto-downloads **yt-dlp** and **FFmpeg** on first run
 - Cross-platform (Windows & macOS)
 
