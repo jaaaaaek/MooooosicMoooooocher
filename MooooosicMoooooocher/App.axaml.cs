@@ -22,7 +22,8 @@ namespace MooooosicMoooooocher
                 var urlValidator = new UrlValidator();
                 var ffmpegService = new FFmpegService();
                 var ytDlpService = new YtDlpService();
-                var downloadService = new DownloadService();
+                var soundCloudResolver = new SoundCloudResolver();
+                var downloadService = new DownloadService(soundCloudResolver);
                 var fileService = new FileService();
 
                 var viewModel = new MainWindowViewModel(

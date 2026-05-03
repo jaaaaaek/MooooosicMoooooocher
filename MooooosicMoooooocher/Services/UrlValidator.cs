@@ -75,7 +75,47 @@ namespace MooooosicMoooooocher.Services
 
         public bool IsResolvableUrl(string url)
         {
-            return !string.IsNullOrWhiteSpace(url) && LikesRegex.IsMatch(url.Trim());
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return false;
+            }
+
+            string trimmed = url.Trim();
+            return LikesRegex.IsMatch(trimmed) || SetRegex.IsMatch(trimmed);
+        }
+
+        public string Normalize(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return url ?? string.Empty;
+            }
+
+            string trimmed = url.Trim();
+
+            if (!trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                !trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                trimmed = "https://" + trimmed;
+            }
+
+            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
+            {
+                return trimmed;
+            }
+
+            if (!uri.Host.EndsWith("soundcloud.com", StringComparison.OrdinalIgnoreCase))
+            {
+                return trimmed;
+            }
+
+            var segments = uri.AbsolutePath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length != 1 || ReservedPaths.Contains(segments[0]))
+            {
+                return trimmed;
+            }
+
+            return $"{uri.Scheme}://{uri.Host}/{segments[0]}/likes{uri.Query}";
         }
     }
 }

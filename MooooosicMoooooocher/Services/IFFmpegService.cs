@@ -45,6 +45,13 @@ namespace MooooosicMoooooocher.Services
             : 0);
         public string Message { get; set; } = string.Empty;
         public DownloadPhase Phase { get; set; }
+
+        /// <summary>
+        /// When set, the receiving console replaces the last line in place if the
+        /// previous write used the same key. Use for progress counters that should
+        /// update in place (e.g. "X/Y resolved...") instead of appending a new row.
+        /// </summary>
+        public string? LiveKey { get; set; }
     }
 
     /// <summary>

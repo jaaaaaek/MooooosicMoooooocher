@@ -141,11 +141,8 @@ namespace MooooosicMoooooocher.ViewModels
             StatusMessage = string.Empty;
 
             // Check FFmpeg
-#if DEBUG
-            bool ffmpegMissing = true;
-#else
-            bool ffmpegMissing = !_ffmpegService.IsFFmpegAvailable(musicFolder);
-#endif
+            bool ffmpegMissing = FeatureFlags.AlwaysShowWelcomeOnLaunch
+                || !_ffmpegService.IsFFmpegAvailable(musicFolder);
             if (ffmpegMissing)
             {
                 IsFfmpegRequired = true;
@@ -155,11 +152,12 @@ namespace MooooosicMoooooocher.ViewModels
                     "Downloading FFmpeg",
                     "ffmpeg",
                     musicFolder,
-#if DEBUG
-                    SimulateDownloadAsync,
-#else
-                    (folder, progress, ct) => _ffmpegService.EnsureFFmpegAvailableAsync(folder, progress, ct),
-#endif
+                    FeatureFlags.AlwaysShowWelcomeOnLaunch
+                        ? (folder, progress, ct) => SimulateOrInstallAsync(
+                            () => _ffmpegService.IsFFmpegAvailable(folder),
+                            _ffmpegService.EnsureFFmpegAvailableAsync,
+                            folder, progress, ct)
+                        : (folder, progress, ct) => _ffmpegService.EnsureFFmpegAvailableAsync(folder, progress, ct),
                     "FFmpeg is required to continue.\nRestart the app to try again.",
                     cancellationToken);
 
@@ -171,11 +169,8 @@ namespace MooooosicMoooooocher.ViewModels
             }
 
             // Check yt-dlp
-#if DEBUG
-            bool ytDlpMissing = true;
-#else
-            bool ytDlpMissing = !_ytDlpService.IsYtDlpAvailable(musicFolder);
-#endif
+            bool ytDlpMissing = FeatureFlags.AlwaysShowWelcomeOnLaunch
+                || !_ytDlpService.IsYtDlpAvailable(musicFolder);
             if (ytDlpMissing)
             {
                 bool success = await DownloadDependencyAsync(
@@ -184,11 +179,12 @@ namespace MooooosicMoooooocher.ViewModels
                     "Downloading yt-dlp",
                     "yt-dlp",
                     musicFolder,
-#if DEBUG
-                    SimulateDownloadAsync,
-#else
-                    (folder, progress, ct) => _ytDlpService.EnsureYtDlpAvailableAsync(folder, progress, ct),
-#endif
+                    FeatureFlags.AlwaysShowWelcomeOnLaunch
+                        ? (folder, progress, ct) => SimulateOrInstallAsync(
+                            () => _ytDlpService.IsYtDlpAvailable(folder),
+                            _ytDlpService.EnsureYtDlpAvailableAsync,
+                            folder, progress, ct)
+                        : (folder, progress, ct) => _ytDlpService.EnsureYtDlpAvailableAsync(folder, progress, ct),
                     "yt-dlp is required to continue. Restart the app to try again.",
                     cancellationToken);
 
@@ -203,7 +199,25 @@ namespace MooooosicMoooooocher.ViewModels
             return true;
         }
 
-#if DEBUG
+        // Used only when FeatureFlags.AlwaysShowWelcomeOnLaunch is true: if the
+        // dependency is genuinely missing from the app folder we still want to
+        // actually install it so the rest of the app works; if it's already there
+        // we just play the simulated animation to avoid hammering GitHub/gyan.dev
+        // on every iteration.
+        private static async Task<bool> SimulateOrInstallAsync(
+            Func<bool> isInstalled,
+            Func<string, IProgress<DownloadProgress>?, CancellationToken, Task<bool>> realInstall,
+            string folder,
+            IProgress<DownloadProgress>? progress,
+            CancellationToken ct)
+        {
+            if (isInstalled())
+            {
+                return await SimulateDownloadAsync(folder, progress, ct);
+            }
+            return await realInstall(folder, progress, ct);
+        }
+
         private static async Task<bool> SimulateDownloadAsync(string folder, IProgress<DownloadProgress>? progress, CancellationToken ct)
         {
             const long totalBytes = 50_000_000;
@@ -252,7 +266,6 @@ namespace MooooosicMoooooocher.ViewModels
 
             return true;
         }
-#endif
 
         private async Task<bool> DownloadDependencyAsync(
             string confirmTitle,

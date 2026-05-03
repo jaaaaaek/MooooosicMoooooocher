@@ -138,9 +138,10 @@ namespace MooooosicMoooooocher.ViewModels
         {
             _settings = await _settingsService.LoadAsync(cancellationToken);
 
-#if DEBUG
-            _settings.IsFirstRun = true;
-#endif
+            if (FeatureFlags.AlwaysShowWelcomeOnLaunch)
+            {
+                _settings.IsFirstRun = true;
+            }
 
             _suppressSettingsSave = true;
             SettingsPanel.ApplySettings(_settings);
@@ -160,7 +161,10 @@ namespace MooooosicMoooooocher.ViewModels
             }
             else
             {
-                IsWelcomeVisible = false;
+                // Re-check dependencies even after first run in case they were
+                // removed (e.g. by a clean rebuild). Show welcome again if missing.
+                bool depsOk = await Welcome.EnsureDependenciesAsync(_musicFolder, cancellationToken);
+                IsWelcomeVisible = !depsOk;
             }
         }
 
@@ -192,7 +196,16 @@ namespace MooooosicMoooooocher.ViewModels
 
                 var progress = new Progress<DownloadProgress>(update =>
                 {
-                    if (!string.IsNullOrWhiteSpace(update.Message))
+                    if (string.IsNullOrWhiteSpace(update.Message))
+                    {
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(update.LiveKey))
+                    {
+                        ProgressConsole.UpdateOrAppendLine(update.Message, update.LiveKey);
+                    }
+                    else
                     {
                         ProgressConsole.AppendLine(update.Message);
                     }
@@ -205,17 +218,29 @@ namespace MooooosicMoooooocher.ViewModels
 
                 if (resolvedUrls.Count == 0)
                 {
-                    ProgressConsole.AppendLine("No tracks found. Make sure your auth token is set if this is a private likes page.");
+                    ProgressConsole.AppendLine("No tracks found. If this is a private playlist or likes page, make sure your auth token is set.");
                     return;
                 }
 
                 var existingUrls = DownloadQueue.Items.Select(i => i.Url).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+                // Batch additions to keep the UI thread responsive. Avalonia's
+                // non-virtualizing UniformGrid layout pass is O(N) per Add, so a
+                // tight loop of 3700 Adds blocks the window for many seconds and
+                // Windows marks it "(Not Responding)". Inserting in chunks of 50
+                // with a Task.Yield() between chunks lets the UI breathe and
+                // process its message pump (input, paint, focus changes, etc.)
+                // between bursts.
+                const int BatchSize = 50;
                 int added = 0;
+                int processed = 0;
                 foreach (var url in resolvedUrls)
                 {
+                    processed++;
                     if (existingUrls.Contains(url))
+                    {
                         continue;
+                    }
 
                     existingUrls.Add(url);
                     DownloadQueue.Add(new DownloadItem
@@ -225,13 +250,18 @@ namespace MooooosicMoooooocher.ViewModels
                         Status = DownloadStatus.Pending
                     });
                     added++;
+
+                    if (processed % BatchSize == 0)
+                    {
+                        await Task.Yield();
+                    }
                 }
 
                 ProgressConsole.AppendLine($"Added {added} track(s) to queue ({resolvedUrls.Count - added} duplicates skipped).");
             }
             catch (Exception ex)
             {
-                ProgressConsole.AppendLine($"Failed to resolve likes: {ex.Message}");
+                ProgressConsole.AppendLine($"Failed to resolve {item.Url}: {ex.Message}");
             }
         }
 
@@ -266,6 +296,17 @@ namespace MooooosicMoooooocher.ViewModels
                 DownloadQueue.Items.Any(i => i.Status == DownloadStatus.Pending && i.Format == AudioFormat.WAV))
             {
                 ProgressConsole.AppendLine("Auth token is required for WAV downloads. Set it in Settings.");
+
+                // Mark all pending WAV items Failed up front so the queue processor
+                // skips them. Without this short-circuit, each WAV item would still
+                // attempt to download, fail with the same auth-token error, and spam
+                // the console with one FAILED line per item.
+                foreach (var wavItem in DownloadQueue.Items
+                             .Where(i => i.Status == DownloadStatus.Pending && i.Format == AudioFormat.WAV))
+                {
+                    wavItem.Status = DownloadStatus.Failed;
+                    wavItem.ErrorMessage = "Auth token is required for WAV downloads.";
+                }
             }
 
             try
@@ -348,6 +389,7 @@ namespace MooooosicMoooooocher.ViewModels
             {
                 item.Status = DownloadStatus.Failed;
                 item.ErrorMessage = result.ErrorMessage ?? "Download failed.";
+                ProgressConsole.AppendLine($"FAILED: {item.Model.Url} - {item.ErrorMessage}");
             }
         }
 

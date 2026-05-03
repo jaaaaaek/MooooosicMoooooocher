@@ -96,14 +96,16 @@ namespace MooooosicMoooooocher.ViewModels
 
             foreach (var line in lines)
             {
-                if (!seen.Add(line))
+                var normalized = _validator.Normalize(line);
+
+                if (!seen.Add(normalized))
                 {
                     skippedCount++;
                     orderedDetails.Add(new AddUrlDetail($"Skipped: Duplicate in list: {line}", isError: true));
                     continue;
                 }
 
-                var result = _validator.Validate(line, existingUrls);
+                var result = _validator.Validate(normalized, existingUrls);
                 if (!result.IsValid)
                 {
                     skippedCount++;
@@ -113,7 +115,7 @@ namespace MooooosicMoooooocher.ViewModels
 
                 var item = new DownloadItem
                 {
-                    Url = line,
+                    Url = normalized,
                     Format = SelectedFormat,
                     Status = DownloadStatus.Pending
                 };

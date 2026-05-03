@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Local backup folder created during the 2026-05-03 repo recreate
+.repo-backup/
+
 # User-specific files
 *.rsuser
 *.suo
