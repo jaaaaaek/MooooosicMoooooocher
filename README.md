@@ -5,15 +5,15 @@ An Avalonia desktop app for downloading lots of music!
 ## Features
 
 - Download audio as **MP3** or **WAV**
-- Batch download from a queue of pasted URLs
-- Remembers and skips previously downloaded tracks per chosen directory
-- Auto-downloads **yt-dlp** and **FFmpeg** on first run
+- Download batches of urls, or all your liked songs if you paste your profile url like this: https://soundcloud.com/yourusernamehere
+- Logs downloaded songs per directory so previously downloaded songs aren't downloaded again
+- Depends on and auto-downloads **yt-dlp** and **FFmpeg** on first run (with neat download animation)
 - Cross-platform (Windows & macOS)
 
 ## Getting Started
 
 1. Download the latest release for your platform
-2. Run the app — it will download yt-dlp and FFmpeg automatically on first launch
+2. Run the app, it will download yt-dlp and FFmpeg automatically on first launch
 3. Set your output folder
 4. Paste URLs, add them to the queue, and start downloading
 
